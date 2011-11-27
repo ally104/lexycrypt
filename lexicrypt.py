@@ -8,7 +8,7 @@ import settings
 
 AES = AES.new(settings.SECRET_KEY, AES.MODE_ECB)
 BLOCK_SIZE = 16
-IMAGE_WIDTH = 100
+IMAGE_WIDTH = 50
 RGB = 255
 
 
@@ -41,8 +41,12 @@ class Lexicrypt():
         width, height = image.size
         for y in range(height):
             c = image.getpixel((0, y))
-            c_idx = [v[1] for v in self.char_array].index(c)
-            message += self.char_array[c_idx][0]
+            try:
+                c_idx = [v[1] for v in self.char_array].index(c)
+                message += self.char_array[c_idx][0]
+            except ValueError:
+                print 'Image decryption failed: image data corrupt.'
+                return False
         cipher_text = AES.decrypt(message).strip()
         return cipher_text
 
@@ -71,9 +75,10 @@ class Lexicrypt():
         image = Image.new('RGBA', (IMAGE_WIDTH, cipher_length))
 
         putpixel = image.im.putpixel
+        char_array = [v[0] for v in self.char_array]
         for idx, c in enumerate(cipher_text):
-            if c in [v[0] for v in self.char_array]:
-                c_idx = [v[0] for v in self.char_array].index(c)
+            if c in char_array:
+                c_idx = char_array.index(c)
                 rgb = self.char_array[c_idx][1]
             else:
                 rgb = self._generate_rgb(c)
@@ -89,10 +94,10 @@ class Lexicrypt():
         character. If the RGB value is already
         taken, try again
         """
-        rgb = (random.randint(0, 255),
-               random.randint(0, 255),
-               random.randint(0, 255),
-               random.randint(0, 255))
+        rgb = (random.randint(0, RGB),
+               random.randint(0, RGB),
+               random.randint(0, RGB),
+               random.randint(0, RGB))
         if c in [v[1] for v in self.char_array]:
             # call this function again until we are happy
             self._generate_rgb()
