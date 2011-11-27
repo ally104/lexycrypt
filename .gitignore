@@ -1,5 +1,2 @@
 *.pyc
-build
-static/encrypted/*.png
-src
 settings.py

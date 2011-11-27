@@ -1,3 +1,4 @@
+import os
 import random
 
 from Crypto.Cipher import AES
@@ -20,13 +21,13 @@ class Lexicrypt():
     def __init__(self):
         self.char_array = []
 
-    def encrypt_message(self, message):
+    def encrypt_message(self, message, image_path, filename):
         """
         Encrypt a block of text.
         Currently testing with AES
         """
         cipher_text = AES.encrypt(self._pad_message(message))
-        image = self._generate_image(cipher_text)
+        image = self._generate_image(cipher_text, image_path, filename)
         return image
 
     def decrypt_message(self, image_path):
@@ -61,7 +62,7 @@ class Lexicrypt():
                     current_count += 1
         return message
 
-    def _generate_image(self, cipher_text):
+    def _generate_image(self, cipher_text, image_path, filename):
         """
         Assign each character with a specific
         colour.
@@ -71,15 +72,16 @@ class Lexicrypt():
 
         putpixel = image.im.putpixel
         for idx, c in enumerate(cipher_text):
-            try:
+            if c in [v[0] for v in self.char_array]:
                 c_idx = [v[0] for v in self.char_array].index(c)
                 rgb = self.char_array[c_idx][1]
-            except ValueError:
+            else:
                 rgb = self._generate_rgb(c)
                 self.char_array.append((c, rgb))
             for i in range(IMAGE_WIDTH):
                 putpixel((i, idx), rgb)
-        image.save('static/encrypted/test.png')
+        image_full_path = os.path.join(image_path, filename)
+        image.save(image_full_path)
 
     def _generate_rgb(self, c):
         """
@@ -91,9 +93,8 @@ class Lexicrypt():
                random.randint(0, 255),
                random.randint(0, 255),
                random.randint(0, 255))
-        try:
-            [v[1] for v in self.char_array].index(c)
+        if c in [v[1] for v in self.char_array]:
             # call this function again until we are happy
             self._generate_rgb()
-        except ValueError:
+        else:
             return rgb
