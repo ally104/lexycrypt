@@ -6,7 +6,7 @@ lexicrypt
 What it is
 ==========
 
-Encrypt and decrypt text using AES and represent as images.
+Token-based steganography.
 
 
 Installation
