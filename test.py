@@ -1,11 +1,32 @@
 import unittest
 
+import pymongo
+
 from PIL import Image
 
 from lexicrypt import Lexicrypt
 
+connection = pymongo.Connection("localhost", 27017)
+db = connection.lexicrypt
+
 
 class LexicryptTestCase(unittest.TestCase):
+ 
+    def tearDown(self):
+        db.drop_collection('emails')
+
+    def testAssignmentOfTokenToUser(self):
+        """
+        Validate that a user has a valid
+        token set
+        """
+        lex = Lexicrypt()
+        email = 'test@test.com'
+        lex.get_or_create_email(email)
+        db_emailer = db.emails.find_one({ 'email': email })
+
+        assert email == db_emailer.get('email')
+        assert db_emailer.get('token')
 
     def testValidDecryption(self):
         """

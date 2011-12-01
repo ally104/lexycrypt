@@ -1,5 +1,9 @@
+import base64
 import os
 import random
+import time
+
+import pymongo
 
 from Crypto.Cipher import AES
 from PIL import Image
@@ -11,6 +15,10 @@ BLOCK_SIZE = 16
 IMAGE_WIDTH = 50
 RGB = 255
 
+connection = pymongo.Connection("localhost", 27017)
+
+db = connection.lexicrypt
+
 
 class Lexicrypt():
     """
@@ -20,6 +28,17 @@ class Lexicrypt():
 
     def __init__(self):
         self.char_array = []
+
+    def get_or_create_email(self, email):
+        """
+        Find the email address in the system
+        or create it if it doesn't exist
+        """
+        emailer = db.emails.find_one({ 'email': email })
+        if not emailer:
+            emailer = { 'email': email, 'token': self._generate_token(email) }
+            db.emails.insert(emailer)
+        return emailer
 
     def encrypt_message(self, message, image_path, filename):
         """
@@ -103,3 +122,14 @@ class Lexicrypt():
             self._generate_rgb()
         else:
             return rgb
+    
+    def _generate_token(self, email):
+        """
+        Generate a token based on the timestamp
+        and the user's email address
+        """
+        random_int = str(random.randrange(100, 10000))
+        token_string = '%s%s%s' % (random_int,
+                                   email,
+                                   str(int(time.time())))
+        return base64.b64encode(token_string)
