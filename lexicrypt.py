@@ -15,9 +15,7 @@ BLOCK_SIZE = 16
 IMAGE_WIDTH = 50
 RGB = 255
 
-connection = pymongo.Connection("localhost", 27017)
-
-db = connection.lexicrypt
+db = settings.DATABASE
 
 
 class Lexicrypt():
@@ -28,51 +26,73 @@ class Lexicrypt():
 
     def __init__(self):
         self.char_array = []
+        self.token = None
 
     def get_or_create_email(self, email):
         """
         Find the email address in the system
-        or create it if it doesn't exist
+        or create it if it doesn't exist.
         """
-        emailer = db.emails.find_one({ 'email': email })
-        if not emailer:
-            emailer = { 'email': email, 'token': self._generate_token(email) }
-            db.emails.insert(emailer)
+        email = email.lower()
+        db.emails.update({ "email": email },
+                         { "$set": { "token": self._generate_token(email) }},
+                         upsert=True)
+        emailer = db.emails.find_one({ "email": email })
+        self.token = emailer['token']
         return emailer
+    
+    def add_email_accessor(self, image_path, email):
+        """
+        Add the email to the access list for
+        the message.
+        """
+        email = email.lower()
+        accessor = self.get_or_create_email(email)
+        message = db.emails.find_one({ "messages.message": image_path })
+        message['messages']['accessors'] = accessor['token']
+        db.emails.save(message)
+        return accessor['token']
 
     def encrypt_message(self, message, image_path, filename):
         """
         Encrypt a block of text.
-        Currently testing with AES
+        Currently testing with AES.
         """
+        if not self.token:
+            return False
         cipher_text = AES.encrypt(self._pad_message(message))
         image = self._generate_image(cipher_text, image_path, filename)
         return image
 
-    def decrypt_message(self, image_path):
+    def decrypt_message(self, image_path, accessor_token):
         """
         Load the image.
         Decrypt a block of text.
-        Currently testing with AES
+        Currently testing with AES.
         """
-        message = ''
-        image = Image.open(image_path).getdata()
-        width, height = image.size
-        for y in range(height):
-            c = image.getpixel((0, y))
-            try:
-                c_idx = [v[1] for v in self.char_array].index(c)
-                message += self.char_array[c_idx][0]
-            except ValueError:
-                print 'Image decryption failed: image data corrupt.'
-                return False
-        cipher_text = AES.decrypt(message).strip()
-        return cipher_text
+        accessor = db.emails.find_one({ "messages.message": image_path,
+                                        "messages.accessors": accessor_token })
+        if accessor:
+            message = ''
+            image = Image.open(image_path).getdata()
+            width, height = image.size
+            for y in range(height):
+                c = image.getpixel((0, y))
+                try:
+                    c_idx = [v[1] for v in self.char_array].index(c)
+                    message += self.char_array[c_idx][0]
+                except ValueError:
+                    print 'Image decryption failed: image data corrupt.'
+                    return False
+            cipher_text = AES.decrypt(message).strip()
+            return cipher_text
+        else:
+            return False
 
     def _pad_message(self, message):
         """
         Verify that the message is
-        in a multiple of 16
+        in a multiple of 16.
         """
         message_length = len(message)
         if message_length < BLOCK_SIZE:
@@ -92,7 +112,6 @@ class Lexicrypt():
         """
         cipher_length = len(cipher_text)
         image = Image.new('RGBA', (IMAGE_WIDTH, cipher_length))
-
         putpixel = image.im.putpixel
         char_array = [v[0] for v in self.char_array]
         for idx, c in enumerate(cipher_text):
@@ -107,11 +126,17 @@ class Lexicrypt():
         image_full_path = os.path.join(image_path, filename)
         image.save(image_full_path)
 
+        emailer = db.emails.find_one({ "token": self.token })
+        message = { "message": image_full_path }
+        emailer['messages'] = message
+        db.emails.save(emailer)
+        return image_full_path
+
     def _generate_rgb(self, c):
         """
         Generate the RGB values for this
         character. If the RGB value is already
-        taken, try again
+        taken, try again.
         """
         rgb = (random.randint(0, RGB),
                random.randint(0, RGB),
@@ -126,7 +151,7 @@ class Lexicrypt():
     def _generate_token(self, email):
         """
         Generate a token based on the timestamp
-        and the user's email address
+        and the user's email address.
         """
         random_int = str(random.randrange(100, 10000))
         token_string = '%s%s%s' % (random_int,
