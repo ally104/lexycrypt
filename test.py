@@ -46,11 +46,15 @@ class LexicryptTestCase(unittest.TestCase):
         lex.get_or_create_email(sender)
         message = u'this is the message'
         lex.encrypt_message(message, 'images/', 'test.png')
-        receiver = 'test2@test.com'
-        receiver_token = lex.add_email_accessor('images/test.png', receiver)
-        accessor = db.emails.find_one({ "email": receiver })
+        receiver1 = 'test2@test.com'
+        receiver2 = 'test3@test.com'
+        receiver_token1 = lex.add_email_accessor('images/test.png', receiver1)
+        receiver_token2 = lex.add_email_accessor('images/test.png', receiver2)
+        accessor1 = db.emails.find_one({ "email": receiver1 })
+        accessor2 = db.emails.find_one({ "email": receiver2 })
 
-        assert accessor['token'] == receiver_token
+        assert accessor1['token'] == receiver_token1
+        assert accessor2['token'] == receiver_token2
 
     def testValidDecryption(self):
         """
@@ -62,15 +66,22 @@ class LexicryptTestCase(unittest.TestCase):
         lex = Lexicrypt()
         email = 'test@test.com'
         lex.get_or_create_email(email)
-        message = u'this is the message'
-        lex.encrypt_message(message, 'images/', 'test.png')
-        receiver = 'test2@test.com'
-        receiver_token = lex.add_email_accessor('images/test.png', receiver)
-        dmessage = lex.decrypt_message('images/test.png', receiver_token)
+        message1 = u'this is the message1'
+        message2 = u'this is the message2'
+        lex.encrypt_message(message1, 'images/', 'test.png')
+        lex.encrypt_message(message2, 'images/', 'test2.png')
+        receiver1 = 'test2@test.com'
+        receiver2 = 'test3@test.com'
+        receiver_token1 = lex.add_email_accessor('images/test.png', receiver1)
+        receiver_token2 = lex.add_email_accessor('images/test2.png', receiver2)
+        dmessage1 = lex.decrypt_message('images/test.png', receiver_token1)
+        dmessage2 = lex.decrypt_message('images/test2.png', receiver_token2)
         db_emailer = db.emails.find_one({ "email": email })
 
-        assert dmessage == message
-        assert db_emailer['messages']['message'] == 'images/test.png'
+        assert dmessage1 == message1
+        assert dmessage2 == message2
+        assert { 'message': 'images/test.png' } in db_emailer['messages']
+        assert { 'message': 'images/test2.png' } in db_emailer['messages']
         assert db_emailer['email'] == email
     
     def testInvalidEncryption(self):

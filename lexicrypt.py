@@ -48,9 +48,9 @@ class Lexicrypt():
         """
         email = email.lower()
         accessor = self.get_or_create_email(email)
-        message = db.emails.find_one({ "messages.message": image_path })
-        message['messages']['accessors'] = accessor['token']
-        db.emails.save(message)
+        db.emails.update({ "messages.message": image_path },
+                         { "$addToSet": { "accessors": accessor['token'] }},
+                         upsert=True)
         return accessor['token']
 
     def encrypt_message(self, message, image_path, filename):
@@ -70,9 +70,13 @@ class Lexicrypt():
         Decrypt a block of text.
         Currently testing with AES.
         """
-        accessor = db.emails.find_one({ "messages.message": image_path,
-                                        "messages.accessors": accessor_token })
-        if accessor:
+        try:
+            accessor_tokens = db.emails.find_one({ "messages.message": image_path })['accessors']
+        except KeyError:
+            print "Access token not found"
+            return False
+
+        if accessor_token in accessor_tokens:
             message = ''
             image = Image.open(image_path).getdata()
             width, height = image.size
@@ -126,10 +130,9 @@ class Lexicrypt():
         image_full_path = os.path.join(image_path, filename)
         image.save(image_full_path)
 
-        emailer = db.emails.find_one({ "token": self.token })
         message = { "message": image_full_path }
-        emailer['messages'] = message
-        db.emails.save(emailer)
+        db.emails.update({ "token": self.token },
+                         { "$addToSet": { "messages": message }})
         return image_full_path
 
     def _generate_rgb(self, c):
