@@ -3,8 +3,6 @@ import os
 import random
 import time
 
-import pymongo
-
 from Crypto.Cipher import AES
 from PIL import Image
 
