@@ -53,6 +53,16 @@ class Lexicrypt():
                          upsert=True)
         return accessor['token']
 
+    def remove_email_accessor(self, image_path, email):
+        """
+        Remove an email from the access list for
+        the message.
+        """
+        email = email.lower()
+        accessor = db.emails.find_one({ "email": email })
+        db.emails.update({ "messages.message": image_path },
+                         { "$pull": { "accessors": accessor['token'] }})
+
     def encrypt_message(self, message, image_path, filename):
         """
         Encrypt a block of text.

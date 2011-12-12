@@ -30,7 +30,6 @@ Screenshot
 Todo
 ====
 
-* Allow removal of access tokens from message list
 * Auto-generate image filenames
 * Allow long messages to be converted to animated PNGs
 * Move AES secret to be at author level and have a one-way hash
@@ -43,6 +42,7 @@ Completed Items
 
 * Save self.char_array to a database, such that: author[messages: [message: accessors: [api_key_1, api_key_2, api_key_n]]]
 * Allow them to decrypt by providing a link to the image
+* Allow removal of access tokens from message list
 
 
 Additional Notes

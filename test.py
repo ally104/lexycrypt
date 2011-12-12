@@ -56,6 +56,25 @@ class LexicryptTestCase(unittest.TestCase):
         assert accessor1['token'] == receiver_token1
         assert accessor2['token'] == receiver_token2
 
+    def testDeleteAccessToken(self):
+        """
+        Validate taht a deleted access token loses decryption
+        access to the message
+        """
+        lex = Lexicrypt()
+        sender = 'test@test.com'
+        lex.get_or_create_email(sender)
+        message = u'this is the message'
+        lex.encrypt_message(message, 'images/', 'test.png')
+        receiver1 = 'test2@test.com'
+        receiver2 = 'test3@test.com'
+        receiver_token1 = lex.add_email_accessor('images/test.png', receiver1)
+        receiver_token2 = lex.add_email_accessor('images/test.png', receiver2)
+        lex.remove_email_accessor('images/test.png', receiver1)
+        accessor_tokens = db.emails.find_one({ "messages.message": 'images/test.png' })['accessors']
+
+        assert receiver1 not in accessor_tokens
+
     def testValidDecryption(self):
         """
         Validate the encrypted text decrypts
