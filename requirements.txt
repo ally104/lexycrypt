@@ -1,3 +1,5 @@
+flask
 PIL
 pycrypto
 pymongo
+-e git+http://github.com/fredj/flask-jsonify.git#egg=flask-jsonify

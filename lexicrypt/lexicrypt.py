@@ -32,7 +32,8 @@ class Lexicrypt():
         or create it if it doesn't exist.
         """
         email = email.lower()
-        db.emails.update({ "email": email },
+        if not db.emails.find_one({ "email": email }):
+            db.emails.update({ "email": email },
                          { "$set": { "token": self._generate_token(email) }},
                          upsert=True)
         emailer = db.emails.find_one({ "email": email })
