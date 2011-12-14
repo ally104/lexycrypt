@@ -45,6 +45,14 @@ Completed Items
 * Allow removal of access tokens from message list
 
 
+Running the Tests
+=================
+
+In the top level of the project, run the following:
+
+python -m unittest lexicrypt.tests.test
+
+
 Additional Notes
 ================
 
