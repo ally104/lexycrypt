@@ -13,10 +13,7 @@ BLOCK_SIZE = 16
 IMAGE_WIDTH = 50
 RGB = 255
 
-if settings.ENV == 'test':
-    db = settings.TEST_DATABASE
-else:
-    db = settings.DATABASE
+db = settings.DATABASE
 
 
 class Lexicrypt():

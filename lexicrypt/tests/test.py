@@ -10,6 +10,9 @@ db = settings.DATABASE
 
 
 class LexicryptTestCase(unittest.TestCase):
+    def setUp(self):
+        settings.ENV = 'test'
+
     def tearDown(self):
         db.drop_collection('emails')
 

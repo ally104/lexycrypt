@@ -1,0 +1,12 @@
+{% extends "shared/layout.html" %}
+
+{% block title %}
+    lexicrypt.login
+{% endblock %}
+
+{% block content %}
+    <button type="button" id="login">Log in</button>
+    <form method="post" action="/set_email">
+        <input type="text" name="bid_assertion" value="1">
+    </form>
+{% endblock %}
