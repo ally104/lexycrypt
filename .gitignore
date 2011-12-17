@@ -1,6 +1,6 @@
 *.pyc
 .DS_Store
 settings.py
-images/test.png
+images/*
 build
 src
