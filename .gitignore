@@ -4,3 +4,6 @@ settings.py
 images/*
 build
 src
+lexicrypt/static/generated/*
+lexicrypt/tests/images/*
+

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import base64
 import os
 import random
@@ -5,6 +7,8 @@ import time
 
 from Crypto.Cipher import AES
 from PIL import Image
+
+from pymongo.binary import Binary
 
 import settings
 
@@ -28,6 +32,7 @@ class Lexicrypt():
     def __init__(self):
         self.char_array = []
         self.token = None
+        self.email = None
 
     def get_or_create_email(self, email):
         """
@@ -41,6 +46,7 @@ class Lexicrypt():
                          upsert=True)
         emailer = db.emails.find_one({ "email": email })
         self.token = emailer['token']
+        self.email = email
         return emailer
     
     def add_email_accessor(self, image_path, email):
@@ -68,12 +74,16 @@ class Lexicrypt():
     def encrypt_message(self, message, image_path, filename):
         """
         Encrypt a block of text.
-        Currently testing with AES.
+        Currently testing with AES. Also add
+        the owner's token to the accessible list
         """
         if not self.token:
             return False
         cipher_text = AES.encrypt(self._pad_message(message))
         image = self._generate_image(cipher_text, image_path, filename)
+        db.emails.update({ "messages.message": image_path },
+                         { "$addToSet": { "accessors": self.token }},
+                         upsert=True)
         return image
 
     def decrypt_message(self, image_path, accessor_token):
@@ -83,7 +93,8 @@ class Lexicrypt():
         Currently testing with AES.
         """
         try:
-            accessor_tokens = db.emails.find_one({ "messages.message": image_path })['accessors']
+            message = db.emails.find_one({ "messages.message": image_path })
+            accessor_tokens = message['accessors']
         except KeyError:
             print "Access token not found"
             return False
@@ -112,7 +123,7 @@ class Lexicrypt():
         """
         message_length = len(message)
         if message_length < BLOCK_SIZE:
-            message = message.ljust(BLOCK_SIZE - message_length)
+            message = message.ljust(BLOCK_SIZE)
         else:
             if message_length % BLOCK_SIZE != 0:
                 current_count = message_length
@@ -143,8 +154,11 @@ class Lexicrypt():
         image.save(image_full_path)
 
         message = { "message": image_full_path }
-        db.emails.update({ "token": self.token },
-                         { "$addToSet": { "messages": message }})
+        message_item = db.emails.update({ "token": self.token },
+                                        { "$addToSet": { "messages": message }})
+        db.emails.update({ "messages.message": image_full_path },
+                         { "$set": { "result_map": Binary(str(self.char_array)) }},
+                         upsert=True)
         return image_full_path
 
     def _generate_rgb(self, c):

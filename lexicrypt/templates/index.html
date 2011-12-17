@@ -5,8 +5,53 @@
 {% endblock %}
 
 {% block content %}
-    <button type="button" id="login">Log in</button>
-    <form method="post" action="/set_email">
+  {% if session['lex_token'] %}
+    <div id="encrypt-message">
+      <form method="post" action="/set_message">
+        <textarea name="message"></textarea>
+        <button type="submit">Encrypt Message</button>
+      </form>
+    </div>
+
+    {% if image %}
+      <div id="image">
+        <img src="{{ image }}">
+        <p>share: <a href="{{ image }}">{{ image }}</a></p>
+      </div>
+    {% endif %}
+
+    {% if message %}
+      <p class="decrypted-message">{{ message }}</p>
+    {% endif %}
+
+    <div id="decrypt-message">
+      <form method="post" action="/get_message">
+        <input type="text" name="message">
+        <button type="submit">Decrypt Message</button>
+      </form>
+    </div>
+
+    <div id="add-email">
+      <form method="post" action="/add_email">
+        <input type="text" name="message">
+        <input type="text" name="email">
+        <button type="submit">Add accessor</button>
+      </form>
+    </div>
+
+    {% if tokens %}
+      <ul>
+        {% for token in tokens %}
+          <li>{{ token }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% else %}
+    <div id="authenticate">
+      <button type="button" id="login">Log In</button>
+      <form method="post" action="/set_email">
         <input type="text" name="bid_assertion" value="1">
-    </form>
+      </form>
+    </div>
+  {% endif %}
 {% endblock %}
