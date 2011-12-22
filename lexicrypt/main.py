@@ -21,15 +21,12 @@ lex = Lexicrypt()
 
 @app.route('/', methods=['GET'])
 def main():
-    """
-    Default landing page
-    """
+    """Default landing page"""
     return render_template('index.html', page='main')
 
 @app.route('/set_email', methods=['POST'])
 def set_email():
-    """
-    Verify via BrowserID and upon success, set
+    """Verify via BrowserID and upon success, set
     the email for the user unless it already
     exists and return the token.
     """
@@ -52,8 +49,7 @@ def set_email():
 
 @app.route('/set_message', methods=['POST'])
 def set_message():
-    """
-    Generate the image for this message and return
+    """Generate the image for this message and return
     the url and image to the user
     """
     if not session['lex_email']:
@@ -68,9 +64,7 @@ def set_message():
 
 @app.route('/get_message', methods=['POST'])
 def get_message():
-    """
-    Decrypt the message from the image url
-    """
+    """Decrypt the message from the image url"""
     if not session['lex_email']:
         return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
@@ -80,9 +74,7 @@ def get_message():
 
 @app.route('/add_email', methods=['POST'])
 def add_email():
-    """
-    Add an email to the access list
-    """
+    """Add an email to the access list"""
     if not session['lex_email']:
         return redirect(url_for('main'))
     lex.add_email_accessor(request.form['message'],
@@ -91,9 +83,7 @@ def add_email():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    """
-    Log the user out
-    """
+    """Log the user out"""
     session['lex_token'] = None
     session['lex_email'] = None
     return redirect(url_for('main'))

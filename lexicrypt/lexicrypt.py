@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import ast
 import base64
 import os
 import random
@@ -7,8 +8,6 @@ import time
 
 from Crypto.Cipher import AES
 from PIL import Image
-
-from pymongo.binary import Binary
 
 import settings
 
@@ -24,19 +23,16 @@ else:
 
 
 class Lexicrypt():
-    """
-    All the encryption/decryption functionality
+    """All the encryption/decryption functionality
     for text and images
     """
-
     def __init__(self):
         self.char_array = []
         self.token = None
         self.email = None
 
     def get_or_create_email(self, email):
-        """
-        Find the email address in the system
+        """Find the email address in the system
         or create it if it doesn't exist.
         """
         email = email.lower()
@@ -50,64 +46,60 @@ class Lexicrypt():
         return emailer
     
     def add_email_accessor(self, image_path, email):
-        """
-        Add the email to the access list for
+        """Add the email to the access list for
         the message.
         """
         email = email.lower()
         accessor = self.get_or_create_email(email)
         db.emails.update({ "messages.message": image_path },
-                         { "$addToSet": { "accessors": accessor['token'] }},
+                         { "$addToSet": { "messages.$.accessors": accessor['token'] }},
                          upsert=True)
         return accessor['token']
 
     def remove_email_accessor(self, image_path, email):
-        """
-        Remove an email from the access list for
+        """Remove an email from the access list for
         the message.
         """
         email = email.lower()
         accessor = db.emails.find_one({ "email": email })
+
         db.emails.update({ "messages.message": image_path },
-                         { "$pull": { "accessors": accessor['token'] }})
+                         { "$pull": { "messages.$.accessors": accessor['token'] }})
 
     def encrypt_message(self, message, image_path, filename):
-        """
-        Encrypt a block of text.
-        Currently testing with AES. Also add
-        the owner's token to the accessible list
+        """Encrypt a block of text.
+        Currently testing with AES.
         """
         if not self.token:
             return False
         cipher_text = AES.encrypt(self._pad_message(message))
         image = self._generate_image(cipher_text, image_path, filename)
-        db.emails.update({ "messages.message": image_path },
-                         { "$addToSet": { "accessors": self.token }},
-                         upsert=True)
         return image
 
     def decrypt_message(self, image_path, accessor_token):
-        """
-        Load the image.
+        """Load the image.
         Decrypt a block of text.
         Currently testing with AES.
         """
-        try:
-            message = db.emails.find_one({ "messages.message": image_path })
-            accessor_tokens = message['accessors']
-        except KeyError:
-            print "Access token not found"
-            return False
+        message_record = db.emails.find_one({ "messages.message": image_path })
+        for m in message_record['messages']:
+            if m['message'] == image_path:
+                if accessor_token in m['accessors']:
+                    result_map = base64.b64decode(m['result_map'])
+                    result_map = ast.literal_eval(result_map)
+                else:
+                    return False
+                break
 
-        if accessor_token in accessor_tokens:
+        if result_map:
             message = ''
             image = Image.open(image_path).getdata()
             width, height = image.size
             for y in range(height):
                 c = image.getpixel((0, y))
                 try:
-                    c_idx = [v[1] for v in self.char_array].index(c)
-                    message += self.char_array[c_idx][0]
+                    c_idx = [v[1] for v in result_map].index(c)
+                    message += result_map[c_idx][0]
                 except ValueError:
                     print 'Image decryption failed: image data corrupt.'
                     return False
@@ -117,10 +109,7 @@ class Lexicrypt():
             return False
 
     def _pad_message(self, message):
-        """
-        Verify that the message is
-        in a multiple of 16.
-        """
+        """Verify that the message is in a multiple of 16."""
         message_length = len(message)
         if message_length < BLOCK_SIZE:
             message = message.ljust(BLOCK_SIZE)
@@ -133,9 +122,8 @@ class Lexicrypt():
         return message
 
     def _generate_image(self, cipher_text, image_path, filename):
-        """
-        Assign each character with a specific
-        colour.
+        """Assign each character with a specific
+        colour. Also save the token for the sender.
         """
         cipher_length = len(cipher_text)
         image = Image.new('RGBA', (IMAGE_WIDTH, cipher_length))
@@ -150,20 +138,25 @@ class Lexicrypt():
                 self.char_array.append((c, rgb))
             for i in range(IMAGE_WIDTH):
                 putpixel((i, idx), rgb)
-        image_full_path = os.path.join(image_path, filename)
+        if settings.ENV == 'test':
+            image_full_path = '%s%s' % (image_path, filename)
+        else:
+            image_full_path = os.path.join(image_path, filename)
         image.save(image_full_path)
 
         message = { "message": image_full_path }
         message_item = db.emails.update({ "token": self.token },
                                         { "$addToSet": { "messages": message }})
         db.emails.update({ "messages.message": image_full_path },
-                         { "$set": { "result_map": Binary(str(self.char_array)) }},
+                         { "$set": { "messages.$.result_map": base64.b64encode(str(self.char_array)) }},
+                         upsert=True)
+        db.emails.update({ "messages.message": image_full_path },
+                         { "$addToSet": { "messages.$.accessors": self.token }},
                          upsert=True)
         return image_full_path
 
     def _generate_rgb(self, c):
-        """
-        Generate the RGB values for this
+        """Generate the RGB values for this
         character. If the RGB value is already
         taken, try again.
         """
@@ -178,8 +171,7 @@ class Lexicrypt():
             return rgb
     
     def _generate_token(self, email):
-        """
-        Generate a token based on the timestamp
+        """Generate a token based on the timestamp
         and the user's email address.
         """
         random_int = str(random.randrange(100, 10000))
