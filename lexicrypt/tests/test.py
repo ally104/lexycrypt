@@ -14,7 +14,8 @@ class LexicryptTestCase(unittest.TestCase):
         settings.ENV = 'test'
 
     def tearDown(self):
-        db.drop_collection('emails')
+        db.drop_collection('messages')
+        db.drop_collection('users')
 
     def testAssignmentOfTokenToUser(self):
         """
@@ -28,11 +29,11 @@ class LexicryptTestCase(unittest.TestCase):
         lex.get_or_create_email(email)
         lex.get_or_create_email(email_mixed1)
         lex.get_or_create_email(email_mixed2)
-        db_emailer = db.emails.find({ "email": email })
+        db_emailer = db.users.find_one({ "email": email })
 
-        assert email == db_emailer[0].get('email')
-        assert db.emails.count() == 2
-        assert db_emailer[0].get('token')
+        assert email == db_emailer['email']
+        assert db.users.count() == 2
+        assert db_emailer['token']
 
     def testAccessTokensAddedToMessage(self):
         """
@@ -42,15 +43,22 @@ class LexicryptTestCase(unittest.TestCase):
         """
         lex = Lexicrypt()
         sender = 'test@test.com'
-        lex.get_or_create_email(sender)
+        sender_token = lex.get_or_create_email(sender)['token']
         message = u'this is the message'
-        lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png')
+        lex.encrypt_message(message,
+                            'lexicrypt/tests/images/',
+                            'test.png',
+                            sender_token)
         receiver1 = 'test2@test.com'
         receiver2 = 'test3@test.com'
-        receiver_token1 = lex.add_email_accessor('lexicrypt/tests/images/test.png', receiver1)
-        receiver_token2 = lex.add_email_accessor('lexicrypt/tests/images/test.png', receiver2)
-        accessor1 = db.emails.find_one({ "email": receiver1 })
-        accessor2 = db.emails.find_one({ "email": receiver2 })
+        receiver_token1 = lex.add_email_accessor('lexicrypt/tests/images/test.png',
+                                                 receiver1,
+                                                 sender_token)
+        receiver_token2 = lex.add_email_accessor('lexicrypt/tests/images/test.png',
+                                                 receiver2,
+                                                 sender_token)
+        accessor1 = db.users.find_one({ "email": receiver1 })
+        accessor2 = db.users.find_one({ "email": receiver2 })
 
         assert accessor1['token'] == receiver_token1
         assert accessor2['token'] == receiver_token2
@@ -62,21 +70,28 @@ class LexicryptTestCase(unittest.TestCase):
         """
         lex = Lexicrypt()
         sender = 'test@test.com'
-        lex.get_or_create_email(sender)
+        sender_token = lex.get_or_create_email(sender)
         message = u'this is the message'
-        lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png')
+        lex.encrypt_message(message,
+                            'lexicrypt/tests/images/',
+                            'test.png',
+                            sender_token)
         receiver1 = 'test2@test.com'
         receiver2 = 'test3@test.com'
-        receiver_token1 = lex.add_email_accessor('lexicrypt/tests/images/test.png', receiver1)
-        receiver_token2 = lex.add_email_accessor('lexicrypt/tests/images/test.png', receiver2)
-        lex.remove_email_accessor('lexicrypt/tests/images/test.png', receiver1)
-        messages = db.emails.find_one({ "messages.message": 'lexicrypt/tests/images/test.png' })
+        receiver_token1 = lex.add_email_accessor('lexicrypt/tests/images/test.png',
+                                                 receiver1,
+                                                 sender_token)
+        receiver_token2 = lex.add_email_accessor('lexicrypt/tests/images/test.png',
+                                                 receiver2,
+                                                 sender_token)
+        lex.remove_email_accessor('lexicrypt/tests/images/test.png',
+                                  receiver1,
+                                  sender_token)
+        message = db.messages.find_one({ "message": 'lexicrypt/tests/images/test.png' })
         accessor = False
 
-        for m in messages['messages']:
-            if m['message'] == 'lexicrypt/tests/images/test.png':
-                if receiver1 in m['accessors']:
-                    accessor = True
+        if message and receiver1 in message['accessors']:
+            accessor = True
 
         assert not accessor
 
@@ -89,22 +104,25 @@ class LexicryptTestCase(unittest.TestCase):
         """
         lex = Lexicrypt()
         email = 'test@test.com'
-        lex.get_or_create_email(email)
-
+        sender_token = lex.get_or_create_email(email)['token']
         message1 = u'this is the message1'
-        lex.encrypt_message(message1, 'lexicrypt/tests/images/', 'test.png')
+        lex.encrypt_message(message1, 'lexicrypt/tests/images/', 'test.png', sender_token)
         receiver1 = 'test2@test.com'
         r_email1 = lex.get_or_create_email(receiver1)
-        lex.add_email_accessor('lexicrypt/tests/images/test.png', receiver1)
+        lex.add_email_accessor('lexicrypt/tests/images/test.png',
+                               receiver1,
+                               sender_token)
         dmessage1 = lex.decrypt_message('lexicrypt/tests/images/test.png', r_email1['token'])
 
         assert dmessage1 == message1
 
         message2 = u'this is the message2'
-        lex.encrypt_message(message2, 'lexicrypt/tests/images/', 'test2.png')
+        lex.encrypt_message(message2, 'lexicrypt/tests/images/', 'test2.png', sender_token)
         receiver2 = 'test3@test.com'
         r_email2 = lex.get_or_create_email(receiver2)
-        lex.add_email_accessor('lexicrypt/tests/images/test2.png', receiver2)
+        lex.add_email_accessor('lexicrypt/tests/images/test2.png',
+                               receiver2,
+                               sender_token)
         dmessage2 = lex.decrypt_message('lexicrypt/tests/images/test2.png', r_email2['token'])
         
         assert dmessage2 == message2
@@ -118,7 +136,7 @@ class LexicryptTestCase(unittest.TestCase):
         lex = Lexicrypt()
         message = u'this is the message'
 
-        assert not lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png')
+        assert not lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png', '1111')
 
     def testInvalidDecryption(self):
         """
@@ -127,9 +145,9 @@ class LexicryptTestCase(unittest.TestCase):
         """
         lex = Lexicrypt()
         email = 'test@test.com'
-        lex.get_or_create_email(email)
+        sender_token = lex.get_or_create_email(email)['token']
         message = u'this is the message'
-        lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png')
+        lex.encrypt_message(message, 'lexicrypt/tests/images/', 'test.png', sender_token)
         image = Image.open('lexicrypt/tests/images/test.png')
         putpixel = image.putpixel
         putpixel((0, 10), 255)

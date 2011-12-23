@@ -28,70 +28,71 @@ class Lexicrypt():
     """
     def __init__(self):
         self.char_array = []
-        self.token = None
-        self.email = None
 
     def get_or_create_email(self, email):
         """Find the email address in the system
         or create it if it doesn't exist.
         """
-        email = email.lower()
-        if not db.emails.find_one({ "email": email }):
-            db.emails.update({ "email": email },
-                         { "$set": { "token": self._generate_token(email) }},
-                         upsert=True)
-        emailer = db.emails.find_one({ "email": email })
+        email = email.lower().strip()
+        if not db.users.find_one({ "email": email }):
+            db.users.update({ "email": email },
+                            { "$set": { "token": self._generate_token(email) }},
+                            upsert=True)
+        emailer = db.users.find_one({ "email": email })
         self.token = emailer['token']
         self.email = email
         return emailer
     
-    def add_email_accessor(self, image_path, email):
+    def add_email_accessor(self, image_path, email, sender_token):
         """Add the email to the access list for
         the message.
         """
-        email = email.lower()
-        accessor = self.get_or_create_email(email)
-        db.emails.update({ "messages.message": image_path },
-                         { "$addToSet": { "messages.$.accessors": accessor['token'] }},
-                         upsert=True)
-        return accessor['token']
+        sender_token = db.users.find_one({ "token": sender_token })
+        if sender_token:
+            email = email.lower().strip()
+            accessor = self.get_or_create_email(email)
+            db.messages.update({ "message": image_path },
+                               { "$set": { "token": sender_token }},
+                               upsert=True)
+            db.messages.update({ "message": image_path, "token": sender_token, },
+                               { "$addToSet": { "accessors": accessor['token'] }},
+                               upsert=True)
+            return accessor['token']
+        else:
+            return False
 
-    def remove_email_accessor(self, image_path, email):
+    def remove_email_accessor(self, image_path, email, sender_token):
         """Remove an email from the access list for
         the message.
         """
-        email = email.lower()
-        accessor = db.emails.find_one({ "email": email })
+        sender_token = db.users.find_one({ "token": sender_token })
+        if sender_token:
+            email = email.lower().strip()
+            accessor = db.users.find_one({ "email": email })
+            db.messages.update({ "message": image_path, "token": sender_token },
+                               { "$pull": { "accessors": accessor['token'] }})
 
-        db.emails.update({ "messages.message": image_path },
-                         { "$pull": { "messages.$.accessors": accessor['token'] }})
-
-    def encrypt_message(self, message, image_path, filename):
+    def encrypt_message(self, message, image_path, filename, sender_token):
         """Encrypt a block of text.
         Currently testing with AES.
         """
-        if not self.token:
+        sender_token = db.users.find_one({ "token": sender_token })
+        if sender_token:
+            cipher_text = AES.encrypt(self._pad_message(message))
+            image = self._generate_image(cipher_text, image_path, filename)
+            return image
+        else:
             return False
-        cipher_text = AES.encrypt(self._pad_message(message))
-        image = self._generate_image(cipher_text, image_path, filename)
-        return image
 
     def decrypt_message(self, image_path, accessor_token):
         """Load the image.
         Decrypt a block of text.
         Currently testing with AES.
         """
-        message_record = db.emails.find_one({ "messages.message": image_path })
-        for m in message_record['messages']:
-            if m['message'] == image_path:
-                if accessor_token in m['accessors']:
-                    result_map = base64.b64decode(m['result_map'])
-                    result_map = ast.literal_eval(result_map)
-                else:
-                    return False
-                break
-
-        if result_map:
+        message = db.messages.find_one({ "message": image_path })
+        if accessor_token in message['accessors']:
+            result_map = base64.b64decode(message['result_map'])
+            result_map = ast.literal_eval(result_map)
             message = ''
             image = Image.open(image_path).getdata()
             width, height = image.size
@@ -144,15 +145,13 @@ class Lexicrypt():
             image_full_path = os.path.join(image_path, filename)
         image.save(image_full_path)
 
-        message = { "message": image_full_path }
-        message_item = db.emails.update({ "token": self.token },
-                                        { "$addToSet": { "messages": message }})
-        db.emails.update({ "messages.message": image_full_path },
-                         { "$set": { "messages.$.result_map": base64.b64encode(str(self.char_array)) }},
-                         upsert=True)
-        db.emails.update({ "messages.message": image_full_path },
-                         { "$addToSet": { "messages.$.accessors": self.token }},
-                         upsert=True)
+        db.messages.update({ "message": image_full_path },
+                           { "$set": { "result_map": base64.b64encode(str(self.char_array)) }},
+                           upsert=True)
+        db.messages.update({ "message": image_full_path },
+                           { "$addToSet": { "accessors": self.token }},
+                           upsert=True)
+        self.char_array = []
         return image_full_path
 
     def _generate_rgb(self, c):

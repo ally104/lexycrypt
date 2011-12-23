@@ -58,7 +58,8 @@ def set_message():
     image_filename = '%s.png' % str(int(time.time()))
     image = lex.encrypt_message(request.form['message'],
                                 'static/generated/',
-                                image_filename)
+                                image_filename,
+                                session['lex_token'])
     
     return render_template('index.html', image=image)
 
@@ -78,7 +79,8 @@ def add_email():
     if not session['lex_email']:
         return redirect(url_for('main'))
     lex.add_email_accessor(request.form['message'],
-                           request.form['email'])
+                           request.form['email'],
+                           session['lex_token'])
     return render_template('index.html')
 
 @app.route('/logout', methods=['GET'])
