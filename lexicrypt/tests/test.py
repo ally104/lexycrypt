@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 from PIL import Image
@@ -71,7 +72,7 @@ class LexicryptTestCase(unittest.TestCase):
         lex = Lexicrypt()
         sender = 'test@test.com'
         sender_token = lex.get_or_create_email(sender)
-        message = u'this is the message'
+        message = u'this is the message 汉字/漢字 hànzì'
         lex.encrypt_message(message,
                             'lexicrypt/tests/images/',
                             'test.png',
