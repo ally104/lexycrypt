@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import simplejson as json
 import time
 
@@ -71,7 +70,7 @@ def get_message():
     lex.get_or_create_email(session['lex_email'])
     message = lex.decrypt_message(request.form['message'],
                                   session['lex_token'])
-    return render_template('index.html', message=message)
+    return render_template('index.html', message=message.decode('utf-8'))
 
 @app.route('/add_email', methods=['POST'])
 def add_email():

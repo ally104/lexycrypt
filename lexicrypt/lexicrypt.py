@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import ast
 import base64
 import os
@@ -78,7 +77,7 @@ class Lexicrypt():
         """
         sender_token = db.users.find_one({ "token": sender_token })
         if sender_token:
-            cipher_text = AES.encrypt(self._pad_message(message))
+            cipher_text = AES.encrypt(self._pad_message(unicode(message).encode('utf-8')))
             image = self._generate_image(cipher_text, image_path, filename)
             return image
         else:
@@ -127,7 +126,7 @@ class Lexicrypt():
         colour. Also save the token for the sender.
         """
         cipher_length = len(cipher_text)
-        image = Image.new('RGBA', (IMAGE_WIDTH, cipher_length))
+        image = Image.new('RGB', (IMAGE_WIDTH, cipher_length))
         putpixel = image.im.putpixel
         char_array = [v[0] for v in self.char_array]
         for idx, c in enumerate(cipher_text):
@@ -160,7 +159,6 @@ class Lexicrypt():
         taken, try again.
         """
         rgb = (random.randint(0, RGB),
-               random.randint(0, RGB),
                random.randint(0, RGB),
                random.randint(0, RGB))
         if c in [v[1] for v in self.char_array]:
