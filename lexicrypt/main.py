@@ -5,7 +5,7 @@ import time
 from httplib2 import Http
 from urllib import urlencode
 
-from flask import abort, flash, Flask, g, redirect, render_template, request, session, g, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 import settings
 
@@ -45,6 +45,22 @@ def set_email():
         session['lex_email'] = bid_data['email']
 
     return render_template('index.html', page='main')
+
+@app.route('/get_accessible', methods=['POST'])
+def get_accessible():
+    """Check to see if the user's token is one in the
+    accessor list for this image
+    """
+    try:
+        if lex.is_accessible(request.form['message'], request.form['lex_token']):
+            result = { "message": "Access granted", "status": 200 }
+            return jsonify(result)
+        else:
+            result = { "message": "Access denied", "status": 401 }
+            return jsonify(result)
+    except ValueError:
+        result = { "message": "Access denied", "status": 401 }
+        return jsonify(result)
 
 @app.route('/set_message', methods=['POST'])
 def set_message():

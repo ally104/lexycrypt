@@ -6,6 +6,11 @@
 
 {% block content %}
   {% if session['lex_token'] %}
+    <form method="post" action="/get_accessible">
+      <input type="text" name="lex_token" value="{{ session['lex_token'] }}">
+      <input type="text" name="message" value="shared">
+      <button type="submit">Encrypt Message</button>
+    </form>
     <div id="encrypt-message">
       <form method="post" action="/set_message">
         <textarea name="message"></textarea>

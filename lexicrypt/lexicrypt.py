@@ -70,6 +70,15 @@ class Lexicrypt():
             accessor = db.users.find_one({ "email": email })
             db.messages.update({ "message": image_path, "token": sender_token },
                                { "$pull": { "accessors": accessor['token'] }})
+    
+    def is_accessible(self, image_path, accessor_token):
+        """Check to see if the user can access the image"""
+        accessor = db.users.find_one({ "token": accessor_token })
+        if accessor:
+            message = db.messages.find_one({ "message": image_path })
+            if accessor['token'] in message['accessors']:
+                return True
+        return False
 
     def encrypt_message(self, message, image_path, filename, sender_token):
         """Encrypt a block of text.
