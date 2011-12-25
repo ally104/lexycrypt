@@ -51,10 +51,34 @@ table {
 
 body {
     padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+div {
+    margin: 10px;
+}
+
+input[type="text"] {
+    width: 200px;
 }
 
 textarea {
     min-height: 50px;
     resize: vertical;
     width: 100%;
+}
+
+input, textarea {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    box-shadow: inset #ccc 1px 1px 1px;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+}
+
+.your-messages li {
+    font-family: Helvetica, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
 }

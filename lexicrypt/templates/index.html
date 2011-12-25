@@ -6,11 +6,16 @@
 
 {% block content %}
   {% if session['lex_token'] %}
-    <form method="post" action="/get_accessible">
-      <input type="text" name="lex_token" value="{{ session['lex_token'] }}">
-      <input type="text" name="message" value="shared">
-      <button type="submit">Encrypt Message</button>
-    </form>
+    <h2>Your Messages</h2>
+    <ul class="your-messages">
+      {% for message in messages %}
+        <li>
+          <img src="{{ message['message'] }}">
+          <p>{{ message['decrypted'] }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+
     <div id="encrypt-message">
       <form method="post" action="/set_message">
         <textarea name="message"></textarea>
@@ -55,7 +60,7 @@
     <div id="authenticate">
       <button type="button" id="login">Log In</button>
       <form method="post" action="/set_email">
-        <input type="text" name="bid_assertion" value="1">
+        <input type="hidden" name="bid_assertion" value="1">
       </form>
     </div>
   {% endif %}

@@ -21,7 +21,17 @@ lex = Lexicrypt()
 @app.route('/', methods=['GET'])
 def main():
     """Default landing page"""
-    return render_template('index.html', page='main')
+    if session['lex_token']:
+        messages = lex.get_messages(session['lex_token'])
+        messages_with_decrypted = []
+        for message in messages:
+            # decrypt each message content
+            dmessage = lex.decrypt_message(message['message'], session['lex_token'])
+            message['decrypted'] = dmessage.decode('utf-8')
+            messages_with_decrypted.append(message)
+        return render_template('index.html', messages=messages_with_decrypted)
+    else:
+        return render_template('index.html', page='main')
 
 @app.route('/set_email', methods=['POST'])
 def set_email():
@@ -58,7 +68,7 @@ def get_accessible():
         else:
             result = { "message": "Access denied", "status": 401 }
             return jsonify(result)
-    except ValueError:
+    except TypeError, ValueError:
         result = { "message": "Access denied", "status": 401 }
         return jsonify(result)
 

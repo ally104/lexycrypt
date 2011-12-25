@@ -59,6 +59,11 @@ class Lexicrypt():
             return accessor['token']
         else:
             return False
+    
+    def get_messages(self, sender_token):
+        """Get all messages encrypted by this user"""
+        messages = db.messages.find({ "token": sender_token })
+        return messages
 
     def remove_email_accessor(self, image_path, email, sender_token):
         """Remove an email from the access list for
@@ -97,24 +102,27 @@ class Lexicrypt():
         Decrypt a block of text.
         Currently testing with AES.
         """
-        message = db.messages.find_one({ "message": image_path })
-        if accessor_token in message['accessors']:
-            result_map = base64.b64decode(message['result_map'])
-            result_map = ast.literal_eval(result_map)
-            message = ''
-            image = Image.open(image_path).getdata()
-            width, height = image.size
-            for y in range(height):
-                c = image.getpixel((0, y))
-                try:
-                    c_idx = [v[1] for v in result_map].index(c)
-                    message += result_map[c_idx][0]
-                except ValueError:
-                    print 'Image decryption failed: image data corrupt.'
-                    return False
-            cipher_text = AES.decrypt(message).strip()
-            return cipher_text
-        else:
+        try:
+            message = db.messages.find_one({ "message": image_path })
+            if accessor_token in message['accessors']:
+                result_map = base64.b64decode(message['result_map'])
+                result_map = ast.literal_eval(result_map)
+                message = ''
+                image = Image.open(image_path).getdata()
+                width, height = image.size
+                for y in range(height):
+                    c = image.getpixel((0, y))
+                    try:
+                        c_idx = [v[1] for v in result_map].index(c)
+                        message += result_map[c_idx][0]
+                    except ValueError:
+                        print 'Image decryption failed: image data corrupt.'
+                        return False
+                cipher_text = AES.decrypt(message).strip()
+                return cipher_text
+            else:
+                return False
+        except TypeError:
             return False
 
     def _pad_message(self, message):
@@ -157,7 +165,7 @@ class Lexicrypt():
                            { "$set": { "result_map": base64.b64encode(str(self.char_array)) }},
                            upsert=True)
         db.messages.update({ "message": image_full_path },
-                           { "$addToSet": { "accessors": self.token }},
+                           { "$addToSet": { "accessors": self.token, "token": self.token }},
                            upsert=True)
         self.char_array = []
         return image_full_path
