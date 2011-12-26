@@ -49,13 +49,41 @@ table {
 
 /* main content */
 
+@font-face {
+    font-family: 'FranklinGothicDemiComp';
+    src: url('franklingothic-demicomp-webfont.eot');
+    src: url('franklingothic-demicomp-webfont.eot?#iefix') format('embedded-opentype'),
+         url('franklingothic-demicomp-webfont.woff') format('woff'),
+         url('franklingothic-demicomp-webfont.ttf') format('truetype'),
+         url('franklingothic-demicomp-webfont.svg#FranklinGothicDemiComp') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 body {
+    font-family: 'FranklinGothicDemiComp';
     padding: 10px;
-    font-family: Arial, sans-serif;
+}
+
+h1, h2 {
+    color: #ccc;
+    font-size: 23px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
 }
 
 div {
     margin: 10px;
+}
+
+div.inner-wrapper {
+    border-top: 5px solid #eee;
+    clear: both;
+    float: left;
+    margin: 0px;
+    padding-top: 20px;
+    width: 100%;
 }
 
 input[type="text"] {
@@ -71,14 +99,76 @@ textarea {
 input, textarea {
     border: 1px solid #eee;
     border-radius: 5px;
-    box-shadow: inset #ccc 1px 1px 1px;
+    box-shadow: inset #ccc 1px 1px 0px;
     font-family: Arial, sans-serif;
     padding: 10px;
 }
 
+button {
+    background-color: #ccc;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    padding: 5px;
+}
+
 .your-messages li {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: #ddd 1px 1px 2px;
+    float: left;
     font-family: Helvetica, sans-serif;
-    font-size: 10px;
-    text-transform: uppercase;
-    margin-bottom: 5px;
+    font-size: 13px;
+    margin: 0px 10px 10px 10px;
+    padding: 5px;
+    position: relative;
+    width: 320px;
+}
+
+.your-messages li img, .your-messages p {
+    float: left;
+}
+
+.your-messages li img {
+    margin-right: 5px;
+}
+
+.your-messages li p {
+    background-color: #eee;
+    color: #555;
+    line-height: 18px;
+    padding: 8px;
+    width: 248px;
+}
+
+.your-messages li p.share {
+    background-color: #fbfa8a;
+    color: #595e3a;
+    margin-top: 5px;
+}
+
+.your-messages li p.share span {
+    background-color: #fcfbcf;
+    border-radius: 3px;
+    padding: 3px 5px 3px 5px;
+}
+
+.your-messages li button.delete {
+    background-color: #aaa;
+    border: 2px solid #fff;
+    border-radius: 30px;
+    box-shadow: #ccc 1px 1px 0px;
+    color: #fff;
+    display: block;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 0px 3px 0px 3px;
+    position: absolute;
+    right: -13px;
+    text-align: center;
+    text-decoration: none;
+    top: -13px;
+}
+
+.your-messages li button.delete:hover {
+    background-color: #f00;
 }

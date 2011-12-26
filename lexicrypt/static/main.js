@@ -9,4 +9,8 @@ $(function() {
             }
         });
     });
+
+    $('a.delete').click(function(ev) {
+        ev.preventDefault();
+    });
 });

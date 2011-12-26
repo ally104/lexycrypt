@@ -98,6 +98,15 @@ def get_message():
                                   session['lex_token'])
     return render_template('index.html', message=message.decode('utf-8'))
 
+@app.route('/delete_message', methods=['POST'])
+def delete_message():
+    """Delete the message"""
+    if not session['lex_email']:
+        return redirect(url_for('main'))
+    lex.delete_message(request.form['message'],
+                       session['lex_token'])
+    return redirect(url_for('main'))
+
 @app.route('/add_email', methods=['POST'])
 def add_email():
     """Add an email to the access list"""

@@ -87,11 +87,12 @@ class Lexicrypt():
 
     def encrypt_message(self, message, image_path, filename, sender_token):
         """Encrypt a block of text.
-        Currently testing with AES.
+        Currently testing with AES and truncating to 250 characters.
         """
         sender_token = db.users.find_one({ "token": sender_token })
         if sender_token:
-            cipher_text = AES.encrypt(self._pad_message(unicode(message).encode('utf-8')))
+            cipher_text = AES.encrypt(self._pad_message(
+                    unicode(message[:250]).encode('utf-8')))
             image = self._generate_image(cipher_text, image_path, filename)
             return image
         else:
@@ -124,6 +125,12 @@ class Lexicrypt():
                 return False
         except TypeError:
             return False
+    
+    def delete_message(self, image_path, sender_token):
+        """Delete message"""
+        user_token = db.users.find_one({ "token": sender_token })
+        if user_token:
+            db.messages.remove({ "message": image_path, "token": sender_token })
 
     def _pad_message(self, message):
         """Verify that the message is in a multiple of 16."""
@@ -162,10 +169,10 @@ class Lexicrypt():
         image.save(image_full_path)
 
         db.messages.update({ "message": image_full_path },
-                           { "$set": { "result_map": base64.b64encode(str(self.char_array)) }},
-                           upsert=True)
+                           { "$set": { "result_map": base64.b64encode(str(self.char_array)),
+                                       "token": self.token }}, upsert=True)
         db.messages.update({ "message": image_full_path },
-                           { "$addToSet": { "accessors": self.token, "token": self.token }},
+                           { "$addToSet": { "accessors": self.token }},
                            upsert=True)
         self.char_array = []
         return image_full_path
