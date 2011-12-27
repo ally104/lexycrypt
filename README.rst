@@ -30,6 +30,7 @@ Screenshot
 Todo
 ====
 
+* Allow regeneration of api keys
 * Allow long messages to be converted to animated PNGs
 
 
