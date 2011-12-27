@@ -117,7 +117,8 @@ class Lexicrypt():
 
     def decrypt_message(self, image_path, accessor_token):
         """Load the image and decrypt the block of text.
-        If it fails, return an empty string rather than False"""
+        If it fails, return an empty string rather than False
+        """
         try:
             message = self.db.messages.find_one({"message": image_path})
             if accessor_token in message['accessors']:
