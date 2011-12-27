@@ -7,6 +7,7 @@ import time
 
 from Crypto.Cipher import AES
 from PIL import Image
+from pymongo import DESCENDING
 
 import settings
 
@@ -67,10 +68,10 @@ class Lexicrypt():
         """
         try:
             if sender_token:
-                messages = db.messages.find({
-                        "token": sender_token })
+                messages = db.messages.find({ 
+                        "token": sender_token }).sort("created_at", DESCENDING)
             else:
-                messages = db.messages.find()
+                messages = db.messages.find().sort("created_at", DESCENDING)
         except TypeError:
             messages = []
         return messages
