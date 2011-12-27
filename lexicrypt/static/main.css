@@ -186,7 +186,8 @@ button:hover {
     margin: 0px 10px 10px 10px;
     padding: 5px;
     position: relative;
-    width: 319px;
+    max-width: 350px;
+    min-width: 290px;
 }
 
 .public-messages li {
@@ -212,7 +213,7 @@ button:hover {
     color: #555;
     line-height: 18px;
     padding: 8px;
-    width: 248px;
+    width: 76.5%;
 }
 
 .your-messages li p.share {
@@ -252,7 +253,7 @@ button:hover {
 
 div.decrypt button {
     background-color: #111;
-    bottom: 0px;
+    bottom: -18px;
     color: #fff;
     font-size: 12px;
     padding: 0px 4px 0px 4px;

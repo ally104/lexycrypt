@@ -3,3 +3,4 @@ PIL
 pycrypto
 pymongo
 httplib2
+boto

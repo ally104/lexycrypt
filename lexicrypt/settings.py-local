@@ -1,0 +1,24 @@
+# key must be 16, 24 or 32 bytes long
+SECRET_KEY = 'SECRET_KEY'
+
+SESSION_SECRET = 'SESSION_SECRET'
+
+AWS_S3_BUCKET = 'bucket'
+AWS_S3_KEY = 'KEY'
+AWS_S3_SECRET = 'SECRET'
+IMAGE_URL = 'http://your_aws_url.here'
+
+DOMAIN = 'http://yourdomain.here'
+
+DEBUG = True
+
+import pymongo
+
+connection = pymongo.Connection("localhost", 27017)
+TEST_DATABASE = connection.lexicrypt_test
+DATABASE = connection.lexicrypt
+
+from boto.s3.connection import S3Connection
+
+conn = S3Connection(AWS_S3_KEY, AWS_S3_SECRET)
+BUCKET = conn.create_bucket(AWS_S3_BUCKET)

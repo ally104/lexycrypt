@@ -4,7 +4,10 @@ import base64
 import os
 import random
 import time
+import urllib
 
+from boto.s3.key import Key
+from cStringIO import StringIO
 from Crypto.Cipher import AES
 from PIL import Image
 from pymongo import DESCENDING
@@ -16,11 +19,6 @@ BLOCK_SIZE = 16
 IMAGE_WIDTH = 50
 RGB = 255
 
-if settings.ENV == 'test':
-    db = settings.TEST_DATABASE
-else:
-    db = settings.DATABASE
-
 
 class Lexicrypt():
     """All the encryption/decryption functionality
@@ -28,39 +26,46 @@ class Lexicrypt():
     """
     def __init__(self):
         self.char_array = []
+        self.token = ''
+        self.env = 'dev'
+        self.db = settings.DATABASE
+    
+    def set_environment(self, env='dev'):
+        if env == 'test':
+            self.env = env
+            self.db = settings.TEST_DATABASE
 
     def get_or_create_email(self, email):
         """Find the email address in the system
         or create it if it doesn't exist.
         """
         email = email.lower().strip()
-        if not db.users.find_one({ "email": email }):
-            db.users.update({ "email": email },
-                            { "$set": { "token": self._generate_token(email) }},
-                            upsert=True)
-        emailer = db.users.find_one({ "email": email })
+        if not self.db.users.find_one({"email": email}):
+            self.db.users.update({"email": email},
+                    {"$set": {"token": self._generate_token(email)}},
+                    upsert=True)
+        emailer = self.db.users.find_one({"email": email})
         self.token = emailer['token']
-        self.email = email
         return emailer
-    
+
     def add_email_accessor(self, image_path, email, sender_token):
         """Add the email to the access list for
         the message.
         """
-        sender_token = db.users.find_one({ "token": sender_token })
+        sender_token = self.db.users.find_one({"token": sender_token})
         if sender_token:
             email = email.lower().strip()
             accessor = self.get_or_create_email(email)
-            db.messages.update({ "message": image_path },
-                               { "$set": { "token": sender_token }},
+            self.db.messages.update({"message": image_path},
+                               {"$set": {"token": sender_token['token']}},
                                upsert=True)
-            db.messages.update({ "message": image_path, "token": sender_token, },
-                               { "$addToSet": { "accessors": accessor['token'] }},
+            self.db.messages.update({"message": image_path, "token": sender_token['token']},
+                               {"$addToSet": {"accessors": accessor['token']}},
                                upsert=True)
             return accessor['token']
         else:
             return False
-    
+
     def get_messages(self, sender_token=None):
         """Get all messages sorted by created_at descending.
         If a sender_token is supplied, get all the user's
@@ -68,10 +73,10 @@ class Lexicrypt():
         """
         try:
             if sender_token:
-                messages = db.messages.find({ 
-                        "token": sender_token }).sort("created_at", DESCENDING)
+                messages = self.db.messages.find({
+                        "token": sender_token}).sort("created_at", DESCENDING)
             else:
-                messages = db.messages.find().sort("created_at", DESCENDING)
+                messages = self.db.messages.find().sort("created_at", DESCENDING)
         except TypeError:
             messages = []
         return messages
@@ -80,18 +85,18 @@ class Lexicrypt():
         """Remove an email from the access list for
         the message.
         """
-        sender_token = db.users.find_one({ "token": sender_token })
+        sender_token = self.db.users.find_one({"token": sender_token})
         if sender_token:
             email = email.lower().strip()
-            accessor = db.users.find_one({ "email": email })
-            db.messages.update({ "message": image_path, "token": sender_token },
-                               { "$pull": { "accessors": accessor['token'] }})
-    
+            accessor = self.db.users.find_one({"email": email})
+            self.db.messages.update({"message": image_path, "token": sender_token},
+                    {"$pull": {"accessors": accessor['token']}})
+
     def is_accessible(self, image_path, accessor_token):
         """Check to see if the user can access the image"""
-        accessor = db.users.find_one({ "token": accessor_token })
+        accessor = self.db.users.find_one({"token": accessor_token})
         if accessor:
-            message = db.messages.find_one({ "message": image_path })
+            message = self.db.messages.find_one({"message": image_path})
             if accessor['token'] in message['accessors']:
                 return True
         return False
@@ -100,27 +105,30 @@ class Lexicrypt():
         """Encrypt a block of text.
         Currently testing with AES and truncating to 250 characters.
         """
-        sender_token = db.users.find_one({ "token": sender_token })
+        sender_token = self.db.users.find_one({"token": sender_token})
         if sender_token:
             cipher_text = AES.encrypt(self._pad_message(
                     unicode(message[:250]).encode('utf-8')))
-            image = self._generate_image(cipher_text, image_path, filename)
+            image = self._generate_image(cipher_text, image_path,
+                    filename, sender_token['token'])
             return image
         else:
             return False
 
     def decrypt_message(self, image_path, accessor_token):
-        """Load the image.
-        Decrypt a block of text.
-        Currently testing with AES.
-        """
+        """Load the image and decrypt the block of text.
+        If it fails, return an empty string rather than False"""
         try:
-            message = db.messages.find_one({ "message": image_path })
+            message = self.db.messages.find_one({"message": image_path})
             if accessor_token in message['accessors']:
                 result_map = base64.b64decode(message['result_map'])
                 result_map = ast.literal_eval(result_map)
                 message = ''
-                image = Image.open(image_path).getdata()
+                if self.env == 'test':
+                    image = Image.open(image_path).getdata()
+                else:
+                    im = StringIO(urllib.urlopen(image_path).read())
+                    image = Image.open(im).getdata()
                 width, height = image.size
                 for y in range(height):
                     c = image.getpixel((0, y))
@@ -129,19 +137,23 @@ class Lexicrypt():
                         message += result_map[c_idx][0]
                     except ValueError:
                         print 'Image decryption failed: image data corrupt.'
-                        return False
+                        return ''
                 cipher_text = AES.decrypt(message).strip()
                 return cipher_text
             else:
-                return False
+                return ''
         except TypeError:
-            return False
-    
+            return ''
+
     def delete_message(self, image_path, sender_token):
         """Delete message"""
-        user_token = db.users.find_one({ "token": sender_token })
-        if user_token:
-            db.messages.remove({ "message": image_path, "token": sender_token })
+        message_token = self.db.messages.find_one({"message": image_path,
+                                                   "token": sender_token})
+        if message_token:
+            self.db.messages.remove({"message": image_path,
+                                     "token": sender_token})
+            return True
+        return False
 
     def _pad_message(self, message):
         """Verify that the message is in a multiple of 16."""
@@ -156,7 +168,7 @@ class Lexicrypt():
                     current_count += 1
         return message
 
-    def _generate_image(self, cipher_text, image_path, filename):
+    def _generate_image(self, cipher_text, image_path, filename, sender_token):
         """Assign each character with a specific
         colour. Also save the token for the sender.
         """
@@ -173,19 +185,26 @@ class Lexicrypt():
                 self.char_array.append((c, rgb))
             for i in range(IMAGE_WIDTH):
                 putpixel((i, idx), rgb)
-        if settings.ENV == 'test':
+        if self.env == 'test':
             image_full_path = '%s%s' % (image_path, filename)
+            image.save(image_full_path)
         else:
             image_full_path = os.path.join(image_path, filename)
-        image.save(image_full_path)
+            image.save(image_full_path)
+            aws_key = Key(settings.BUCKET)
+            aws_key.key = filename
+            aws_key.set_contents_from_filename(image_full_path)
+            image_full_path = "%s%s" % (settings.IMAGE_URL, filename)
 
-        db.messages.update({ "message": image_full_path },
-                           { "$set": { "result_map": base64.b64encode(str(self.char_array)),
-                                       "token": self.token,
-                                       "created_at": int(time.time()) }}, upsert=True)
-        db.messages.update({ "message": image_full_path },
-                           { "$addToSet": { "accessors": self.token }},
-                           upsert=True)
+        bchar_array = base64.b64encode(str(self.char_array))
+        self.db.messages.update({"message": image_full_path},
+                                {"$set": {"result_map": bchar_array,
+                                          "token": sender_token,
+                                          "created_at": int(time.time())}},
+                                          upsert=True)
+        self.db.messages.update({"message": image_full_path},
+                                {"$addToSet": {"accessors": sender_token}},
+                                 upsert=True)
         self.char_array = []
         return image_full_path
 
@@ -202,7 +221,7 @@ class Lexicrypt():
             self._generate_rgb()
         else:
             return rgb
-    
+
     def _generate_token(self, email):
         """Generate a token based on the timestamp
         and the user's email address.

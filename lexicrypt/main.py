@@ -5,7 +5,8 @@ import time
 from httplib2 import Http
 from urllib import urlencode
 
-from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask import (Flask, jsonify, redirect,
+        render_template, request, session, url_for)
 
 import settings
 
@@ -37,6 +38,7 @@ def main():
         emessages = messages
     return render_template('index.html', messages=emessages)
 
+
 @app.route('/your_messages', methods=['GET'])
 def your_messages():
     """Your messages"""
@@ -54,12 +56,14 @@ def your_messages():
                            messages=messages_with_decrypted,
                            page='your_messages')
 
+
 @app.route('/encrypt', methods=['GET'])
 def encrypt():
-    """Encrypt a new message"""
+    """Form for encrypting a new message"""
     if not session['lex_email']:
         return redirect(url_for('main'))
     return render_template('encrypt.html', page='encrypt')
+
 
 @app.route('/set_email', methods=['POST'])
 def set_email():
@@ -67,8 +71,8 @@ def set_email():
     the email for the user unless it already
     exists and return the token.
     """
-    bid_fields = { 'assertion': request.form['bid_assertion'],
-                   'audience': settings.DOMAIN }
+    bid_fields = {'assertion': request.form['bid_assertion'],
+                  'audience': settings.DOMAIN}
     headers = {'Content-type': 'application/x-www-form-urlencoded'}
     resp, content = h.request('https://browserid.org/verify',
                               'POST',
@@ -84,6 +88,7 @@ def set_email():
 
     return render_template('index.html', page='main')
 
+
 @app.route('/set_message', methods=['POST'])
 def set_message():
     """Generate the image for this message and return
@@ -93,11 +98,12 @@ def set_message():
         return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
     image_filename = '%s.png' % str(int(time.time()))
-    image = lex.encrypt_message(request.form['message'],
-                                'static/generated/',
-                                image_filename,
-                                session['lex_token'])    
+    lex.encrypt_message(request.form['message'],
+                        'tmp/',
+                        image_filename,
+                        session['lex_token'])
     return redirect('your_messages')
+
 
 @app.route('/get_message', methods=['POST'])
 def get_message():
@@ -107,7 +113,8 @@ def get_message():
     lex.get_or_create_email(session['lex_email'])
     message = lex.decrypt_message(request.form['message'],
                                   session['lex_token'])
-    return jsonify({ 'message': message })
+    return jsonify({'message': message})
+
 
 @app.route('/delete_message', methods=['POST'])
 def delete_message():
@@ -117,6 +124,7 @@ def delete_message():
     lex.delete_message(request.form['message'],
                        session['lex_token'])
     return redirect('your_messages')
+
 
 @app.route('/add_email', methods=['POST'])
 def add_email():
@@ -128,6 +136,7 @@ def add_email():
                            session['lex_token'])
     return render_template('index.html')
 
+
 @app.route('/logout', methods=['GET'])
 def logout():
     """Log the user out"""
@@ -135,6 +144,8 @@ def logout():
     session['lex_email'] = None
     return redirect(url_for('main'))
 
+
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = settings.DEBUG
+    app.env = 'dev'
     app.run()
