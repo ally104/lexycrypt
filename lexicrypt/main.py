@@ -20,18 +20,46 @@ lex = Lexicrypt()
 
 @app.route('/', methods=['GET'])
 def main():
-    """Default landing page"""
-    if session['lex_token']:
-        messages = lex.get_messages(session['lex_token'])
-        messages_with_decrypted = []
+    """Default landing page. Loads all
+    encrypted messages. If the user has a
+    session, check to see if they have access to
+    decrypting the message.
+    """
+    messages = lex.get_messages()
+    emessages = []
+    if session['lex_email']:
         for message in messages:
-            # decrypt each message content
-            dmessage = lex.decrypt_message(message['message'], session['lex_token'])
-            message['decrypted'] = dmessage.decode('utf-8')
-            messages_with_decrypted.append(message)
-        return render_template('index.html', messages=messages_with_decrypted)
+            if lex.is_accessible(message['message'],
+                                 session['lex_token']):
+                message['is_accessible'] = True
+            emessages.append(message)
     else:
-        return render_template('index.html', page='main')
+        emessages = messages
+    return render_template('index.html', messages=emessages)
+
+@app.route('/your_messages', methods=['GET'])
+def your_messages():
+    """Your messages"""
+    if not session['lex_email']:
+        return redirect(url_for('main'))
+    messages = lex.get_messages(session['lex_token'])
+    messages_with_decrypted = []
+    for message in messages:
+        # decrypt each message content
+        dmessage = lex.decrypt_message(message['message'],
+                                       session['lex_token'])
+        message['decrypted'] = dmessage.decode('utf-8')
+        messages_with_decrypted.append(message)
+    return render_template('your_messages.html',
+                           messages=messages_with_decrypted,
+                           page='your_messages')
+
+@app.route('/encrypt', methods=['GET'])
+def encrypt():
+    """Encrypt a new message"""
+    if not session['lex_email']:
+        return redirect(url_for('main'))
+    return render_template('encrypt.html', page='encrypt')
 
 @app.route('/set_email', methods=['POST'])
 def set_email():
@@ -56,22 +84,6 @@ def set_email():
 
     return render_template('index.html', page='main')
 
-@app.route('/get_accessible', methods=['POST'])
-def get_accessible():
-    """Check to see if the user's token is one in the
-    accessor list for this image
-    """
-    try:
-        if lex.is_accessible(request.form['message'], request.form['lex_token']):
-            result = { "message": "Access granted", "status": 200 }
-            return jsonify(result)
-        else:
-            result = { "message": "Access denied", "status": 401 }
-            return jsonify(result)
-    except TypeError, ValueError:
-        result = { "message": "Access denied", "status": 401 }
-        return jsonify(result)
-
 @app.route('/set_message', methods=['POST'])
 def set_message():
     """Generate the image for this message and return
@@ -84,9 +96,8 @@ def set_message():
     image = lex.encrypt_message(request.form['message'],
                                 'static/generated/',
                                 image_filename,
-                                session['lex_token'])
-    
-    return render_template('index.html', image=image)
+                                session['lex_token'])    
+    return redirect('your_messages')
 
 @app.route('/get_message', methods=['POST'])
 def get_message():
@@ -96,7 +107,7 @@ def get_message():
     lex.get_or_create_email(session['lex_email'])
     message = lex.decrypt_message(request.form['message'],
                                   session['lex_token'])
-    return render_template('index.html', message=message.decode('utf-8'))
+    return jsonify({ 'message': message })
 
 @app.route('/delete_message', methods=['POST'])
 def delete_message():
@@ -105,7 +116,7 @@ def delete_message():
         return redirect(url_for('main'))
     lex.delete_message(request.form['message'],
                        session['lex_token'])
-    return redirect(url_for('main'))
+    return redirect('your_messages')
 
 @app.route('/add_email', methods=['POST'])
 def add_email():

@@ -1,0 +1,20 @@
+{% extends "shared/layout.html" %}
+
+{% block title %}
+    lexicrypt.login
+{% endblock %}
+
+{% block content %}
+  <ul id="header">
+    <li><a href="{{ url_for('main') }}">Your Messages</a></li>
+    <li><a href="{{ url_for('encrypt') }}" class="selected">Encrypt Message</a></li>    
+  </ul>
+  <div class="inner-wrapper">
+    <div id="encrypt-message">
+      <form method="post" action="/set_message">
+        <textarea name="message" placeholder="300 characters maximum"></textarea>
+        <button type="submit">Encrypt Message</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

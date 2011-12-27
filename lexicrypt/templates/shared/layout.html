@@ -14,8 +14,16 @@
     {% endblock %}
     <body>
         <div class="wrapper">
-            <h1>lexicrypt</h1>
-            
+            <h1><a href="{{ url_for('main') }}">lexicrypt</a></h1>
+            {% if session['lex_email'] %}
+                <a href="{{ url_for('logout') }}" id="logout">Logout</a>
+            {% else %}
+                <a href="#" id="login">Log In</a>
+                <form method="post" action="/set_email">
+                  <input type="hidden" name="bid_assertion" value="1">
+                </form>
+            {% endif %}
+
             {% block content %}{% endblock %}
             {% block footer %}
                 <div class="footer">

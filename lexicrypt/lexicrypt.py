@@ -60,9 +60,19 @@ class Lexicrypt():
         else:
             return False
     
-    def get_messages(self, sender_token):
-        """Get all messages encrypted by this user"""
-        messages = db.messages.find({ "token": sender_token })
+    def get_messages(self, sender_token=None):
+        """Get all messages sorted by created_at descending.
+        If a sender_token is supplied, get all the user's
+        encrypted messages.
+        """
+        try:
+            if sender_token:
+                messages = db.messages.find({
+                        "token": sender_token })
+            else:
+                messages = db.messages.find()
+        except TypeError:
+            messages = []
         return messages
 
     def remove_email_accessor(self, image_path, email, sender_token):
@@ -170,7 +180,8 @@ class Lexicrypt():
 
         db.messages.update({ "message": image_full_path },
                            { "$set": { "result_map": base64.b64encode(str(self.char_array)),
-                                       "token": self.token }}, upsert=True)
+                                       "token": self.token,
+                                       "created_at": int(time.time()) }}, upsert=True)
         db.messages.update({ "message": image_full_path },
                            { "$addToSet": { "accessors": self.token }},
                            upsert=True)

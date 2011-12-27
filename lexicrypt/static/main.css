@@ -66,11 +66,61 @@ body {
     padding: 10px;
 }
 
-h1, h2 {
-    color: #ccc;
-    font-size: 23px;
-    margin-bottom: 10px;
+h1 {
+    background: url('/static/images/logo.png') no-repeat;
+    float: left;
+    font-size: 1px;
+    height: 34px;
+    margin-right: 20px;
+    text-indent: -9999px;
+    width: 170px;
+}
+
+h1 a {
+    display: block;
+    height: 34px;
+    width: 170px;
+}
+
+a#logout, a#login {
+    background-color: #111;
+    color: #eee;
+    display: block;
+    font-size: 13px;
+    left: 210px;
+    padding: 3px 6px 3px 6px;
+    position: absolute;
+    text-decoration: none;
     text-transform: uppercase;
+    top: 0px;
+}
+
+a#logout:hover, a#login:hover {
+    background-color: #f1932e;
+}
+
+ul#header {
+    display: block;
+    float: left;
+    height: 34px;
+    line-height: 25px;
+}
+
+ul#header li a {
+    color: #ccc;
+    display: block;
+    font-size: 23px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+ul#header li {
+    float: left;
+    margin: 13px 20px 0px 0px;
+}
+
+ul#header li a:hover, ul#header li a.selected {
+    color: #111;
 }
 
 div {
@@ -81,7 +131,7 @@ div.inner-wrapper {
     border-top: 5px solid #eee;
     clear: both;
     float: left;
-    margin: 0px;
+    margin: 10px 0px 20px 0px;
     padding-top: 20px;
     width: 100%;
 }
@@ -91,24 +141,39 @@ input[type="text"] {
 }
 
 textarea {
+    display: block;
+    float: left;
     min-height: 50px;
     resize: vertical;
-    width: 100%;
+    max-width: 340px;
+    min-width: 300px;
 }
 
 input, textarea {
     border: 1px solid #eee;
     border-radius: 5px;
     box-shadow: inset #ccc 1px 1px 0px;
+    float: left;
     font-family: Arial, sans-serif;
+    font-size: 18px;
     padding: 10px;
 }
 
 button {
-    background-color: #ccc;
-    border: 1px solid #ccc;
-    font-size: 15px;
+    background-color: transparent;
+    border: 0px;
+    color: #83aa59;
+    cursor: pointer;
+    display: block;
+    float: left;
+    font-family: 'FranklinGothicDemiComp';
+    font-size: 25px;
     padding: 5px;
+    text-transform: uppercase;
+}
+
+button:hover {
+    color: #bbdf5b;
 }
 
 .your-messages li {
@@ -121,11 +186,21 @@ button {
     margin: 0px 10px 10px 10px;
     padding: 5px;
     position: relative;
-    width: 320px;
+    width: 319px;
 }
 
-.your-messages li img, .your-messages p {
+.public-messages li {
     float: left;
+    margin: 3px;
+    position: relative;
+}
+
+.public-messages li img, .your-messages li img {
+    float: left;
+}
+
+.your-messages p {
+    float: right;
 }
 
 .your-messages li img {
@@ -143,6 +218,7 @@ button {
 .your-messages li p.share {
     background-color: #fbfa8a;
     color: #595e3a;
+    float: right;
     margin-top: 5px;
 }
 
@@ -155,20 +231,49 @@ button {
 .your-messages li button.delete {
     background-color: #aaa;
     border: 2px solid #fff;
-    border-radius: 30px;
+    border-radius: 4px;
     box-shadow: #ccc 1px 1px 0px;
     color: #fff;
     display: block;
-    font-size: 15px;
+    font-family: Arial;
+    font-size: 11px;
     font-weight: bold;
-    padding: 0px 3px 0px 3px;
+    padding: 0px 2px 0px 2px;
     position: absolute;
-    right: -13px;
+    right: -8px;
     text-align: center;
     text-decoration: none;
-    top: -13px;
+    top: -8px;
 }
 
 .your-messages li button.delete:hover {
     background-color: #f00;
+}
+
+div.decrypt button {
+    background-color: #111;
+    bottom: 0px;
+    color: #fff;
+    font-size: 12px;
+    padding: 0px 4px 0px 4px;
+    position: absolute;
+    right: 0px;
+}
+
+div.decrypt .message {
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: #ccc 1px 1px 3px;
+    color: #333;
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    left: 20px;
+    line-height: 17px;
+    margin-right: 30px;
+    max-width: 550px;
+    min-width: 260px;
+    padding: 15px;
+    position: fixed;
+    z-index: 2;
 }
