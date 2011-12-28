@@ -37,15 +37,14 @@ $(function() {
     $('.accessors a.delete').click(function(ev) {
         ev.preventDefault();
         var self = $(this);
-        var bottom = (26 * self.parent().find('li.email').length) + (16 * self.parent().find('li.email').length);
+        var bottom = (26 * self.closest('.accessors').find('li.email').length);
         $.ajax({
             url: '/remove_email',
             data: { "message": self.data('message'), "email": self.data('email') },
             type: 'POST',
             dataType: 'json',
             success: function(data) {
-                bottom = bottom - 16;
-                console.log(bottom);
+                
                 self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
                 self.parent().remove();
             }
@@ -58,7 +57,10 @@ $(function() {
         if(self.parent().hasClass('hidden')) {
             // calculate how far the bottom should be based on
             // how many emails there are.
-            bottom = bottom * self.parent().find('li.email').length + bottom;
+            $('.your-messages > li').addClass('hidden');
+            self.closest('.your-messages > li').removeClass('hidden');
+
+            bottom = (bottom * self.parent().find('li.email').length) + self.parent().find('li.email').length + bottom;
             self.parent().css({'bottom': '-' + bottom + 'px'});
             self.parent().removeClass('hidden');
             self.text('Hide');
@@ -66,6 +68,11 @@ $(function() {
             self.parent().css({'bottom': '-26px'});
             self.parent().addClass('hidden');
             self.text('Accessors');
+            $('.your-messages > li').removeClass('hidden');
         }
+    });
+
+    $('.share input').focus(function() {
+        $(this).select();
     });
 });
