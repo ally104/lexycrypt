@@ -3,6 +3,12 @@ lexicrypt
 =========
 
 
+Beta Site
+=========
+
+http://blooming-mist-6761.herokuapp.com/
+
+
 What it is
 ==========
 
