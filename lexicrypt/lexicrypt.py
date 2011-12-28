@@ -50,16 +50,17 @@ class Lexicrypt():
 
     def add_email_accessor(self, image_path, email, sender_token):
         """Add the email to the access list for
-        the message.
+        the message, only if the message exists.
         """
-        sender_token = self.db.users.find_one({"token": sender_token})
-        if sender_token:
+        user_token = self.db.messages.find_one({"message": image_path,
+                "token": sender_token})
+        if user_token:
             email = email.lower().strip()
             accessor = self.get_or_create_email(email)
             self.db.messages.update({"message": image_path},
-                               {"$set": {"token": sender_token['token']}},
+                               {"$set": {"token": sender_token}},
                                upsert=True)
-            self.db.messages.update({"message": image_path, "token": sender_token['token']},
+            self.db.messages.update({"message": image_path, "token": sender_token},
                                {"$addToSet": {"accessors": accessor['token']}},
                                upsert=True)
             return accessor['token']
@@ -85,11 +86,12 @@ class Lexicrypt():
         """Remove an email from the access list for
         the message.
         """
-        sender_token = self.db.users.find_one({"token": sender_token})
+        sender_token = self.db.users.find({"message": image_path,
+                "token": sender_token})
         if sender_token:
             email = email.lower().strip()
             accessor = self.db.users.find_one({"email": email})
-            self.db.messages.update({"message": image_path, "token": sender_token},
+            self.db.messages.update({"message": image_path},
                     {"$pull": {"accessors": accessor['token']}})
 
     def is_accessible(self, image_path, accessor_token):

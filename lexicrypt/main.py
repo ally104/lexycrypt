@@ -48,9 +48,15 @@ def your_messages():
     messages_with_decrypted = []
     for message in messages:
         # decrypt each message content
+        emails = []
         dmessage = lex.decrypt_message(message['message'],
                                        session['lex_token'])
         message['decrypted'] = dmessage.decode('utf-8')
+        for accessor in message['accessors']:
+            if accessor != session['lex_token']:
+                user = lex.db.users.find_one({"token": accessor})
+                emails.append(user['email'])
+        message['emails'] = emails
         messages_with_decrypted.append(message)
     return render_template('your_messages.html',
                            messages=messages_with_decrypted,
@@ -86,7 +92,7 @@ def set_email():
         session['lex_token'] = lex.token
         session['lex_email'] = bid_data['email']
 
-    return render_template('index.html', page='main')
+    return redirect(url_for('your_messages'))
 
 
 @app.route('/set_message', methods=['POST'])
@@ -102,7 +108,7 @@ def set_message():
                         'tmp/',
                         image_filename,
                         session['lex_token'])
-    return redirect('your_messages')
+    return redirect(url_for('your_messages'))
 
 
 @app.route('/get_message', methods=['POST'])
@@ -123,8 +129,18 @@ def delete_message():
         return redirect(url_for('main'))
     lex.delete_message(request.form['message'],
                        session['lex_token'])
-    return redirect('your_messages')
+    return redirect(url_for('your_messages'))
 
+
+@app.route('/remove_email', methods=['POST'])
+def remove_email():
+    """Remove an email from the accessor list"""
+    if not session.get('lex_email'):
+        return redirect(url_for('main'))
+    lex.remove_email_accessor(request.form['message'],
+                              request.form['email'],
+                              session['lex_token'])
+    return jsonify({'message': 'removed email'})
 
 @app.route('/add_email', methods=['POST'])
 def add_email():
@@ -134,7 +150,7 @@ def add_email():
     lex.add_email_accessor(request.form['message'],
                            request.form['email'],
                            session['lex_token'])
-    return render_template('index.html')
+    return redirect(url_for('your_messages'))
 
 
 @app.route('/logout', methods=['GET'])

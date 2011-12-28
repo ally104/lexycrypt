@@ -10,36 +10,47 @@
       <li><a href="{{ url_for('main') }}" class="selected">Your Messages</a></li>
       <li><a href="{{ url_for('encrypt') }}">Encrypt Message</a></li>    
     </ul>
-    <div class="inner-wrapper">
-      <ul class="your-messages">
-        {% for message in messages %}
-          <li>
-            <img src="{{ message['message'] }}">
-            <p>{{ message['decrypted'] }}</p>
-            <p class="share"><span>share</span> {{ message['message'] }}</p>
-            <form method="post" action="/delete_message">
-              <input type="hidden" value="{{ message['message'] }}" name="message">
-              <button type="submit" class="delete">x</button>
-            </form>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
 
-    <div id="add-email">
-      <form method="post" action="/add_email">
-        <input type="text" name="message" placeholder="Image Path">
-        <input type="text" name="email" placeholder="Accessor's Email">
-        <button type="submit">Add email accessor</button>
-      </form>
-    </div>
-
-    {% if tokens %}
-      <ul>
-        {% for token in tokens %}
-          <li>{{ token }}</li>
-        {% endfor %}
-      </ul>
+    {% if messages %}
+      <div class="inner-wrapper">
+        <ul class="your-messages">
+          {% for message in messages %}
+            <li>
+              <img src="{{ message['message'] }}">
+              <p>{{ message['decrypted'] }}</p>
+              <p class="share">
+                <span>share</span>
+                <input type="text" value="{{ message['message'] }}">
+              </p>
+              <form method="post" action="/delete_message">
+                <input type="hidden" value="{{ message['message'] }}" name="message">
+                <button type="submit" class="delete">x</button>
+              </form>
+              <ul class="accessors hidden">
+                {% for email in message['emails'] %}
+                  <li class="email">
+                    {{ email }}
+                    <a href="#" class="delete" data-email="{{ email }}"
+                        data-message="{{ message['message'] }}">x</a>
+                  </li>
+                {% endfor %}
+                <li class="toggle">Accessors</li>
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div id="add-email">
+        <form method="post" action="/add_email">
+          <input type="text" name="message" placeholder="Image URL">
+          <input type="text" name="email" placeholder="Accessor's Email">
+          <button type="submit">Add email accessor</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="inner-wrapper">
+        <h3 class="notice">You have no messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
+      </div>
     {% endif %}
   {% else %}
     <div id="authenticate">
