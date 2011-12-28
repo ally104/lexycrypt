@@ -43,8 +43,7 @@ $(function() {
             data: { "message": self.data('message'), "email": self.data('email') },
             type: 'POST',
             dataType: 'json',
-            success: function(data) {
-                
+            success: function(data) {    
                 self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
                 self.parent().remove();
             }
@@ -54,6 +53,8 @@ $(function() {
     $('.accessors li.toggle').click(function() {
         var self = $(this);
         var bottom = 26;
+        $('.your-messages > li').removeClass('selected');
+        
         if(self.parent().hasClass('hidden')) {
             // calculate how far the bottom should be based on
             // how many emails there are.
@@ -62,6 +63,7 @@ $(function() {
 
             bottom = (bottom * self.parent().find('li.email').length) + self.parent().find('li.email').length + bottom;
             self.parent().css({'bottom': '-' + bottom + 'px'});
+            self.closest('.your-messages > li').addClass('selected');
             self.parent().removeClass('hidden');
             self.text('Hide');
         } else {

@@ -189,7 +189,7 @@ button:hover {
     min-width: 290px;
     padding: 5px;
     position: relative;
-    z-index: 3;
+    z-index: 0;
 }
 
 .public-messages li {
@@ -257,8 +257,12 @@ h3.notice a:hover {
     width: 228px;
 }
 
+.your-messages li.selected {
+    z-index: 3;
+}
+
 .your-messages li.hidden {
-    visibility: hidden;
+    opacity: 0.3;
 }
 
 .your-messages li button.delete {

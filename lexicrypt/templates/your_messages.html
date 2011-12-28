@@ -27,13 +27,17 @@
                 <button type="submit" class="delete">x</button>
               </form>
               <ul class="accessors hidden">
-                {% for email in message['emails'] %}
-                  <li class="email">
-                    {{ email }}
-                    <a href="#" class="delete" data-email="{{ email }}"
-                        data-message="{{ message['message'] }}">x</a>
-                  </li>
-                {% endfor %}
+                {% if message['emails'] %}
+                  {% for email in message['emails'] %}
+                    <li class="email">
+                      {{ email }}
+                      <a href="#" class="delete" data-email="{{ email }}"
+                          data-message="{{ message['message'] }}">x</a>
+                    </li>
+                  {% endfor %}
+                {% else %}
+                  <li class="email">You have not added any accessors.</li>
+                {% endif %}
                 <li class="toggle">Accessors</li>
               </ul>
             </li>
