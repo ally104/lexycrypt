@@ -28,7 +28,7 @@ def main():
     """
     messages = lex.get_messages()
     emessages = []
-    if session['lex_email']:
+    if session.get('lex_email'):
         for message in messages:
             if lex.is_accessible(message['message'],
                                  session['lex_token']):
@@ -60,7 +60,7 @@ def your_messages():
 @app.route('/encrypt', methods=['GET'])
 def encrypt():
     """Form for encrypting a new message"""
-    if not session['lex_email']:
+    if not session.get('lex_email'):
         return redirect(url_for('main'))
     return render_template('encrypt.html', page='encrypt')
 
@@ -94,7 +94,7 @@ def set_message():
     """Generate the image for this message and return
     the url and image to the user
     """
-    if not session['lex_email']:
+    if not session.get('lex_email'):
         return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
     image_filename = '%s.png' % str(int(time.time()))
@@ -108,7 +108,7 @@ def set_message():
 @app.route('/get_message', methods=['POST'])
 def get_message():
     """Decrypt the message from the image url"""
-    if not session['lex_email']:
+    if not session.get('lex_email'):
         return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
     message = lex.decrypt_message(request.form['message'],
@@ -119,7 +119,7 @@ def get_message():
 @app.route('/delete_message', methods=['POST'])
 def delete_message():
     """Delete the message"""
-    if not session['lex_email']:
+    if not session.get('lex_email'):
         return redirect(url_for('main'))
     lex.delete_message(request.form['message'],
                        session['lex_token'])
@@ -129,7 +129,7 @@ def delete_message():
 @app.route('/add_email', methods=['POST'])
 def add_email():
     """Add an email to the access list"""
-    if not session['lex_email']:
+    if not session.get('lex_email'):
         return redirect(url_for('main'))
     lex.add_email_accessor(request.form['message'],
                            request.form['email'],
