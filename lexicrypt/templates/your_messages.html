@@ -56,12 +56,5 @@
         <h3 class="notice">You have not created any messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
       </div>
     {% endif %}
-  {% else %}
-    <div id="authenticate">
-      <button type="button" id="login">Log In</button>
-      <form method="post" action="/set_email">
-        <input type="hidden" name="bid_assertion" value="1">
-      </form>
-    </div>
   {% endif %}
 {% endblock %}
