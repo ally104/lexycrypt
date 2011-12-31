@@ -8,3 +8,7 @@ lexicrypt/static/generated/*
 lexicrypt/tests/images/*
 lexicrypt/tmp/*
 lexicrypt/check.py
+lexicrypt/gunicorn.py
+lexicrypt/logs
+lexicrypt/Capfile
+lexicrypt/config
