@@ -40,11 +40,11 @@ class Lexicrypt():
         or create it if it doesn't exist.
         """
         email = email.lower().strip()
-        if not self.db.users.find_one({"email": email}):
-            self.db.users.update({"email": email},
-                    {"$set": {"token": self._generate_token(email)}},
-                    upsert=True)
-        emailer = self.db.users.find_one({"email": email})
+        if not self.db.users.find_one({"email":email}):
+            self.db.users.update({"email":email},
+                                 {"$set":{"token":self._generate_token(email)}},
+                                  upsert=True)
+        emailer = self.db.users.find_one({"email":email})
         self.token = emailer['token']
         return emailer
 
@@ -52,16 +52,15 @@ class Lexicrypt():
         """Add the email to the access list for
         the message, only if the message exists.
         """
-        user_token = self.db.messages.find_one({"message": image_path,
-                "token": sender_token})
+        user_token = self.db.messages.find({"message":image_path,
+                                            "token":sender_token})
         if user_token:
-            email = email.lower().strip()
             accessor = self.get_or_create_email(email)
-            self.db.messages.update({"message": image_path},
-                               {"$set": {"token": sender_token}},
+            self.db.messages.update({"message":image_path},
+                               {"$set": {"token":sender_token}},
                                upsert=True)
-            self.db.messages.update({"message": image_path, "token": sender_token},
-                               {"$addToSet": {"accessors": accessor['token']}},
+            self.db.messages.update({"message":image_path, "token":sender_token},
+                               {"$addToSet":{"accessors":accessor['token']}},
                                upsert=True)
             return accessor['token']
         else:
@@ -86,19 +85,19 @@ class Lexicrypt():
         """Remove an email from the access list for
         the message.
         """
-        sender_token = self.db.users.find({"message": image_path,
-                "token": sender_token})
+        sender_token = self.db.users.find({"message":image_path,
+                                           "token":sender_token})
         if sender_token:
             email = email.lower().strip()
-            accessor = self.db.users.find_one({"email": email})
-            self.db.messages.update({"message": image_path},
-                    {"$pull": {"accessors": accessor['token']}})
+            accessor = self.db.users.find_one({"email":email})
+            self.db.messages.update({"message":image_path},
+                                    {"$pull": {"accessors":accessor['token']}})
 
     def is_accessible(self, image_path, accessor_token):
         """Check to see if the user can access the image"""
-        accessor = self.db.users.find_one({"token": accessor_token})
+        accessor = self.db.users.find_one({"token":accessor_token})
         if accessor:
-            message = self.db.messages.find_one({"message": image_path})
+            message = self.db.messages.find_one({"message":image_path})
             if accessor['token'] in message['accessors']:
                 return True
         return False
@@ -107,7 +106,7 @@ class Lexicrypt():
         """Encrypt a block of text.
         Currently testing with AES and truncating to 250 characters.
         """
-        sender_token = self.db.users.find_one({"token": sender_token})
+        sender_token = self.db.users.find_one({"token":sender_token})
         if sender_token:
             cipher_text = AES.encrypt(self._pad_message(
                     unicode(message[:250]).encode('utf-8')))
@@ -122,7 +121,7 @@ class Lexicrypt():
         If it fails, return an empty string rather than False
         """
         try:
-            message = self.db.messages.find_one({"message": image_path})
+            message = self.db.messages.find_one({"message":image_path})
             if accessor_token in message['accessors']:
                 result_map = base64.b64decode(message['result_map'])
                 result_map = ast.literal_eval(result_map)
@@ -150,11 +149,10 @@ class Lexicrypt():
 
     def delete_message(self, image_path, sender_token):
         """Delete message"""
-        message_token = self.db.messages.find_one({"message": image_path,
-                                                   "token": sender_token})
+        message_token = self.db.messages.find({"message":image_path,
+                                               "token":sender_token})
         if message_token:
-            self.db.messages.remove({"message": image_path,
-                                     "token": sender_token})
+            self.db.messages.remove({"message":image_path, "token":sender_token})
             return True
         return False
 
@@ -200,13 +198,13 @@ class Lexicrypt():
             image_full_path = "%s%s" % (settings.IMAGE_URL, filename)
 
         bchar_array = base64.b64encode(str(self.char_array))
-        self.db.messages.update({"message": image_full_path},
-                                {"$set": {"result_map": bchar_array,
-                                          "token": sender_token,
-                                          "created_at": int(time.time())}},
+        self.db.messages.update({"message":image_full_path},
+                                {"$set": {"result_map":bchar_array,
+                                          "token":sender_token,
+                                          "created_at":int(time.time())}},
                                           upsert=True)
-        self.db.messages.update({"message": image_full_path},
-                                {"$addToSet": {"accessors": sender_token}},
+        self.db.messages.update({"message":image_full_path},
+                                {"$addToSet":{"accessors":sender_token}},
                                  upsert=True)
         self.char_array = []
         return image_full_path

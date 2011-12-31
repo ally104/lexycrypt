@@ -6,10 +6,11 @@ from httplib2 import Http
 from urllib import urlencode
 
 from flask import (Flask, jsonify, redirect,
-        render_template, request, session, url_for)
+                   render_template, request, session, url_for)
 
 import settings
 
+from helper import *
 from lexicrypt import Lexicrypt
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ def main():
     if session.get('lex_email'):
         for message in messages:
             if lex.is_accessible(message['message'],
-                                 session['lex_token']):
+                                 session.get('lex_token')):
                 message['is_accessible'] = True
             emessages.append(message)
     else:
@@ -40,17 +41,16 @@ def main():
 
 
 @app.route('/your_messages', methods=['GET'])
+@authenticated
 def your_messages():
     """Your messages"""
-    if not session['lex_email']:
-        return redirect(url_for('main'))
     messages = lex.get_messages(session['lex_token'])
     messages_with_decrypted = []
     for message in messages:
         # decrypt each message content
         emails = []
         dmessage = lex.decrypt_message(message['message'],
-                                       session['lex_token'])
+                                       session.get('lex_token'))
         message['decrypted'] = dmessage.decode('utf-8')
         for accessor in message['accessors']:
             if accessor != session['lex_token']:
@@ -64,10 +64,9 @@ def your_messages():
 
 
 @app.route('/encrypt', methods=['GET'])
+@authenticated
 def encrypt():
     """Form for encrypting a new message"""
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     return render_template('encrypt.html', page='encrypt')
 
 
@@ -77,9 +76,10 @@ def set_email():
     the email for the user unless it already
     exists and return the token.
     """
-    bid_fields = {'assertion': request.form['bid_assertion'],
-                  'audience': settings.DOMAIN}
-    headers = {'Content-type': 'application/x-www-form-urlencoded'}
+    bid_fields = {'assertion':request.form['bid_assertion'],
+                  'audience':settings.DOMAIN}
+    headers = {'Content-type':'application/x-www-form-urlencoded'}
+    h.disable_ssl_certificate_validation=True
     resp, content = h.request('https://browserid.org/verify',
                               'POST',
                               body=urlencode(bid_fields),
@@ -96,60 +96,55 @@ def set_email():
 
 
 @app.route('/set_message', methods=['POST'])
+@authenticated
 def set_message():
     """Generate the image for this message and return
     the url and image to the user
     """
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
     image_filename = '%s.png' % str(int(time.time()))
     lex.encrypt_message(request.form['message'],
                         'tmp/',
                         image_filename,
-                        session['lex_token'])
+                        session.get('lex_token'))
     return redirect(url_for('your_messages'))
 
 
 @app.route('/get_message', methods=['POST'])
+@authenticated
 def get_message():
     """Decrypt the message from the image url"""
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     lex.get_or_create_email(session['lex_email'])
     message = lex.decrypt_message(request.form['message'],
-                                  session['lex_token'])
-    return jsonify({'message': message})
+                                  session.get('lex_token'))
+    return jsonify({'message':message})
 
 
 @app.route('/delete_message', methods=['POST'])
+@authenticated
 def delete_message():
     """Delete the message"""
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     lex.delete_message(request.form['message'],
                        session['lex_token'])
     return redirect(url_for('your_messages'))
 
 
 @app.route('/remove_email', methods=['POST'])
+@authenticated
 def remove_email():
     """Remove an email from the accessor list"""
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     lex.remove_email_accessor(request.form['message'],
                               request.form['email'],
-                              session['lex_token'])
-    return jsonify({'message': 'removed email'})
+                              session.get('lex_token'))
+    return jsonify({'message':'removed email'})
 
 @app.route('/add_email', methods=['POST'])
+@authenticated
 def add_email():
     """Add an email to the access list"""
-    if not session.get('lex_email'):
-        return redirect(url_for('main'))
     lex.add_email_accessor(request.form['message'],
                            request.form['email'],
-                           session['lex_token'])
+                           session.get('lex_token'))
     return redirect(url_for('your_messages'))
 
 
@@ -163,5 +158,4 @@ def logout():
 
 if __name__ == '__main__':
     app.debug = settings.DEBUG
-    app.env = 'dev'
     app.run()

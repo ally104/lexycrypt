@@ -67,20 +67,21 @@ class LexicryptTestCase(unittest.TestCase):
                             'lexicrypt/tests/images/',
                             'test.png',
                             sender_token)
-        receiver1 = 'test2@test.com'
-        receiver2 = 'test3@test.com'
+        receiver1 = 'test5@test.com'
+        receiver2 = 'test6@test.com'
         lex.add_email_accessor('lexicrypt/tests/images/test.png',
-                               receiver1, sender_token)
+                               receiver1, sender_token['token'])
         lex.add_email_accessor('lexicrypt/tests/images/test.png',
-                               receiver2, sender_token)
+                               receiver2, sender_token['token'])
+
         lex.remove_email_accessor('lexicrypt/tests/images/test.png',
-                                  receiver1,
-                                  sender_token)
+                                  receiver2,
+                                  sender_token['token'])
         message = lex.db.messages.find_one({'message':
                                             'lexicrypt/tests/images/test.png'})
         accessor = False
 
-        if message and receiver1 in message['accessors']:
+        if message and receiver2 in message['accessors']:
             accessor = True
 
         assert not accessor
