@@ -1,7 +1,7 @@
 {% extends "shared/layout.html" %}
 
 {% block title %}
-    lexicrypt.login
+    lexicrypt.your.messages
 {% endblock %}
 
 {% block content %}
@@ -53,7 +53,7 @@
       </div>
     {% else %}
       <div class="inner-wrapper">
-        <h3 class="notice">You have no messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
+        <h3 class="notice">You have not created any messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
       </div>
     {% endif %}
   {% else %}

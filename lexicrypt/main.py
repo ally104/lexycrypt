@@ -44,6 +44,8 @@ def main():
 @authenticated
 def your_messages():
     """Your messages"""
+    if not session.get('lex_email'):
+        return redirect(url_for('main'))
     messages = lex.get_messages(session['lex_token'])
     messages_with_decrypted = []
     for message in messages:
@@ -77,7 +79,7 @@ def set_email():
     exists and return the token.
     """
     bid_fields = {'assertion':request.form['bid_assertion'],
-                  'audience':settings.DOMAIN}
+                  'audience':settings.DOMAIN+':5000'}
     headers = {'Content-type':'application/x-www-form-urlencoded'}
     h.disable_ssl_certificate_validation=True
     resp, content = h.request('https://browserid.org/verify',
@@ -92,7 +94,7 @@ def set_email():
         session['lex_token'] = lex.token
         session['lex_email'] = bid_data['email']
 
-    return redirect(url_for('your_messages'))
+    return redirect(url_for('main'))
 
 
 @app.route('/set_message', methods=['POST'])
