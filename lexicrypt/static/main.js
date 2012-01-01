@@ -37,7 +37,7 @@ $(function() {
     $('.accessors a.delete').click(function(ev) {
         ev.preventDefault();
         var self = $(this);
-        var bottom = (26 * self.closest('.accessors').find('li.email').length);
+        var bottom = (26 * self.closest('.accessors').find('li.email').length) + self.closest('.accessors').find('li.email').length + 33;
         $.ajax({
             url: '/remove_email',
             data: { "message": self.data('message'), "email": self.data('email') },
@@ -61,7 +61,7 @@ $(function() {
             $('.your-messages > li').addClass('hidden');
             self.closest('.your-messages > li').removeClass('hidden');
 
-            bottom = (bottom * self.parent().find('li.email').length) + self.parent().find('li.email').length + bottom;
+            bottom = (bottom * self.parent().find('li.email').length) + self.parent().find('li.email').length + bottom + 34;
             self.parent().css({'bottom': '-' + bottom + 'px'});
             self.closest('.your-messages > li').addClass('selected');
             self.parent().removeClass('hidden');

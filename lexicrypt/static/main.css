@@ -137,16 +137,20 @@ div.inner-wrapper {
 }
 
 input[type="text"] {
-    width: 340px;
+    font-size: 13px;
+    padding: 3px;
+    width: 270px;
 }
 
 textarea {
     display: block;
     float: left;
+    font-size: 18px;
     min-height: 120px;
     resize: vertical;
     max-width: 340px;
     min-width: 300px;
+    padding: 10px;
 }
 
 input, textarea {
@@ -155,8 +159,6 @@ input, textarea {
     box-shadow: inset #ccc 1px 1px 0px;
     float: left;
     font-family: Arial, sans-serif;
-    font-size: 18px;
-    padding: 10px;
 }
 
 button {
@@ -305,20 +307,27 @@ ul.accessors li {
     width: 341px;
 }
 
-ul.accessors.hidden li.email {
+ul.accessors.hidden li.email, ul.accessors.hidden li.add-email {
     display: none;
 }
 
-ul.accessors li a.delete {
+ul.accessors li a.delete, ul.accessors li button.add {
     background-color: #fff;
     border-radius: 3px;
     color: #f00;
     float: right;
+    font-family: Arial;
     font-size: 17px;
     font-weight: bold;
     line-height: 13px;
     padding: 0px 3px 3px 3px;
     text-decoration: none;
+}
+
+ul.accessors li button.add {
+    color: #83AA59;
+    font-size: 20px;
+    padding: 2px 1px;
 }
 
 ul.accessors li.toggle {
@@ -338,26 +347,9 @@ ul.accessors li.toggle:hover {
     background-color: #6aaac8;
 }
 
-ul.accessors li a.delete:hover {
+ul.accessors li a.delete:hover, ul.accessors li button.add:hover {
     background-color: #111;
     color: #fff;
-}
-
-#add-email {
-    background-color: #f1f1f1;
-    clear: both;
-    float: left;
-    margin: 30px 0px 0px 0px;
-    padding: 10px;
-    width: 100%;
-}
-
-#add-email input {
-    margin: 10px 10px 0px 0px;
-}
-
-#add-email button {
-    clear: both;
 }
 
 div.decrypt button {

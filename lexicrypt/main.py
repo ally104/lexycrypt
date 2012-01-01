@@ -79,7 +79,7 @@ def set_email():
     exists and return the token.
     """
     bid_fields = {'assertion':request.form['bid_assertion'],
-                  'audience':settings.DOMAIN+':5000'}
+                  'audience':settings.DOMAIN}
     headers = {'Content-type':'application/x-www-form-urlencoded'}
     h.disable_ssl_certificate_validation=True
     resp, content = h.request('https://browserid.org/verify',
@@ -139,6 +139,7 @@ def remove_email():
                               request.form['email'],
                               session.get('lex_token'))
     return jsonify({'message':'removed email'})
+
 
 @app.route('/add_email', methods=['POST'])
 @authenticated
