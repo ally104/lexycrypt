@@ -34,8 +34,8 @@ def main():
         for message in messages:
             if lex.is_accessible(message['message'],
                                  session.get('lex_token')):
-                email = lex.get_email_by_token(message['token'])
-                gravatar = 'http://www.gravatar.com/avatar/%s?s=50' % md5.new(email)
+                email = str(md5.new(lex.get_email_by_token(message['token'])).hexdigest())
+                gravatar = 'http://www.gravatar.com/avatar/%s?s=50' % email
                 message['is_accessible'] = True
                 message['gravatar'] = gravatar
             emessages.append(message)
