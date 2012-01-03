@@ -196,7 +196,7 @@ button:hover {
 
 .public-messages li {
     float: left;
-    margin: 3px;
+    margin: 10px 3px;
     position: relative;
 }
 
