@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import md5
 import simplejson as json
 import time
 
@@ -33,7 +34,10 @@ def main():
         for message in messages:
             if lex.is_accessible(message['message'],
                                  session.get('lex_token')):
+                email = lex.get_email_by_token(message['token'])
+                gravatar = 'http://www.gravatar.com/avatar/%s?s=50' % md5.new(email)
                 message['is_accessible'] = True
+                message['gravatar'] = gravatar
             emessages.append(message)
     else:
         emessages = messages

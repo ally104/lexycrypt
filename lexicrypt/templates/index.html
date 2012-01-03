@@ -18,6 +18,9 @@
         <li>
           <img src="{{ message['message'] }}">
           {% if session['lex_email'] and message['is_accessible'] %}
+            <div class="avatar">
+              <img src="{{ message['gravatar'] }}">
+            </div>
             <div class="decrypt">
               <button>Decrypt</button>
               <div class="message"></div>

@@ -47,6 +47,12 @@ class Lexicrypt():
         emailer = self.db.users.find_one({"email":email})
         self.token = emailer['token']
         return emailer
+    
+    def get_email_by_token(self, token):
+        """Return user's email by token reference"""
+        emailer = self.db.users.find_one({"token":token})
+        if emailer:
+            return emailer['email']
 
     def add_email_accessor(self, image_path, email, sender_token):
         """Add the email to the access list for

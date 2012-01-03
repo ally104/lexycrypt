@@ -352,6 +352,10 @@ ul.accessors li a.delete:hover, ul.accessors li button.add:hover {
     color: #fff;
 }
 
+div.avatar {
+    margin: 0px;
+}
+
 div.decrypt button {
     background-color: #111;
     bottom: -18px;
