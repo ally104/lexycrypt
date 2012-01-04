@@ -24,7 +24,7 @@ $(function() {
             type: 'POST',
             dataType: 'json',
             success: function(data) {
-               message.html(data['message']);
+               message.text(data['message']);
                message.show();
             }
         });
