@@ -152,7 +152,7 @@ def add_email():
     lex.add_email_accessor(request.form['message'],
                            request.form['email'],
                            session.get('lex_token'))
-    return redirect(url_for('your_messages'))
+    return jsonify({'email':request.form['email']})
 
 
 @app.route('/logout', methods=['GET'])

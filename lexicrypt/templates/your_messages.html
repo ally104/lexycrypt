@@ -28,11 +28,8 @@
               </form>
               <ul class="accessors hidden">
                 <li class="add-email">
-                  <form method="post" action="/add_email">
-                    <input type="hidden" name="message" value="{{ message['message'] }}">
-                    <input type="text" name="email" placeholder="Add Email">
-                    <button type="submit" class="add">+</button>
-                  </form>
+                  <input type="text" name="email" placeholder="Add Email">
+                  <button type="submit" class="add">+</button>
                 </li>
                 {% if message['emails'] %}
                   {% for email in message['emails'] %}
@@ -43,9 +40,9 @@
                     </li>
                   {% endfor %}
                 {% else %}
-                  <li class="email">You have not added any accessors.</li>
+                  <li class="email">You have not added any email addresses.</li>
                 {% endif %}
-                <li class="toggle">Accessors</li>
+                <li class="toggle">Edit Email Access</li>
               </ul>
             </li>
           {% endfor %}
