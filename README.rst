@@ -6,7 +6,7 @@ lexicrypt
 Beta Site
 =========
 
-http://blooming-mist-6761.herokuapp.com/
+http://lexicrypt.com
 
 
 What it is
@@ -31,9 +31,12 @@ Screenshots
 ===========
 
 .. image:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_1.png
-.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_2.png
-.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_3.png
-.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_4.png
+
+.. image:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_2.png
+
+.. image:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_3.png
+
+.. image:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_4.png
 
 
 Todo
