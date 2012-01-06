@@ -16,7 +16,7 @@ $(function() {
 
     $('.decrypt button').click(function() {
         var self = $(this);
-        var message = self.parent().find('.message');
+        var message = $('#message');
         $('.decrypt .message').hide();
         $.ajax({
             url: '/get_message',
@@ -31,7 +31,7 @@ $(function() {
     });
 
     $('body').click(function() {
-       $('.decrypt .message').hide(); 
+       $('#message').hide(); 
     });
 
     $('.accessors a.delete').click(function(ev) {

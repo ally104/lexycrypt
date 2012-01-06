@@ -13,6 +13,7 @@
   {% endif %}
 
   <div class="inner-wrapper">
+    <div id="message"></div>
     <ul class="public-messages">
       {% for message in messages %}
         <li>
@@ -23,7 +24,6 @@
             </div>
             <div class="decrypt">
               <button>Decrypt</button>
-              <div class="message"></div>
             </div>
           {% endif %}
         </li>
