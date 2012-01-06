@@ -27,17 +27,20 @@ Message Flow
 .. image:: http://dl.dropbox.com/u/1913694/lexicrypt-flow.png
 
 
-Screenshot
-==========
+Screenshots
+===========
 
-.. image:: https://img.skitch.com/20111120-fskaf7xhdu6rrs7c1jwkhasf77.jpg
+.. image:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_1.png
+.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_2.png
+.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_3.png
+.. images:: http://dl.dropbox.com/u/1913694/lexicrypt_sample_4.png
 
 
 Todo
 ====
 
 * Allow regeneration of api keys
-* Allow long messages to be converted to animated PNGs
+* Allow long messages to be converted to parts
 
 
 Completed Items
