@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import md5
 import simplejson as json
 import time
 
@@ -30,18 +29,21 @@ def main():
     """
     messages = lex.get_messages()
     emessages = []
-    if session.get('lex_email'):
-        for message in messages:
-            if lex.is_accessible(message['message'],
-                                 session.get('lex_token')):
-                email = str(md5.new(lex.get_email_by_token(message['token'])).hexdigest())
-                gravatar = 'http://www.gravatar.com/avatar/%s?s=50' % email
-                message['is_accessible'] = True
-                message['gravatar'] = gravatar
-            emessages.append(message)
-    else:
-        emessages = messages
+
+    for message in messages:
+        emessages.append(is_decryptable(lex, message, session))
+
     return render_template('index.html', messages=emessages)
+
+
+@app.route('/message/<id>', methods=['GET'])
+def message(id):
+    """Single message display"""
+    message = lex.get_message(id)
+    if message:
+        message = is_decryptable(lex, message, session)
+
+    return render_template('message.html', message=message)
 
 
 @app.route('/your_messages', methods=['GET'])
@@ -63,6 +65,7 @@ def your_messages():
                 user = lex.db.users.find_one({"token": accessor})
                 emails.append(user['email'])
         message['emails'] = emails
+        message['share'] = '%s%s' % (settings.DOMAIN, url_for('message', id=str(message['_id'])))
         messages_with_decrypted.append(message)
     return render_template('your_messages.html',
                            messages=messages_with_decrypted,

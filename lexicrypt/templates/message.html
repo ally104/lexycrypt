@@ -1,0 +1,18 @@
+{% extends "shared/minimal.html" %}
+
+{% block content %}
+  <div id="message"></div>
+  <ul class="public-message">
+    <li>
+      <img src="{{ message['message'] }}">
+      {% if session['lex_email'] and message['is_accessible'] %}
+        <div class="avatar">
+          <img src="{{ message['gravatar'] }}">
+        </div>
+        <div class="decrypt">
+          <button>Decrypt</button>
+        </div>
+      {% endif %}
+    </li>
+  </ul>
+{% endblock %}

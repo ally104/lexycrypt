@@ -11,6 +11,7 @@ from cStringIO import StringIO
 from Crypto.Cipher import AES
 from PIL import Image
 from pymongo import DESCENDING
+from pymongo.objectid import ObjectId
 
 import settings
 
@@ -72,7 +73,7 @@ class Lexicrypt():
         else:
             return False
 
-    def get_messages(self, sender_token=None):
+    def get_messages(self, sender_token=None, limit=20):
         """Get all messages sorted by created_at descending.
         If a sender_token is supplied, get all the user's
         encrypted messages.
@@ -80,12 +81,17 @@ class Lexicrypt():
         try:
             if sender_token:
                 messages = self.db.messages.find({
-                        "token": sender_token}).sort("created_at", DESCENDING)
+                        "token": sender_token}).sort("created_at", DESCENDING).limit(int(limit))
             else:
-                messages = self.db.messages.find().sort("created_at", DESCENDING)
+                messages = self.db.messages.find().sort("created_at", DESCENDING).limit(int(limit))
         except TypeError:
             messages = []
         return messages
+    
+    def get_message(self, id):
+        """Retrieve a single message"""
+        message = self.db.messages.find_one({"_id":ObjectId(id)})
+        return message
 
     def remove_email_accessor(self, image_path, email, sender_token):
         """Remove an email from the access list for

@@ -193,14 +193,18 @@ button:hover {
     z-index: 0;
 }
 
-.public-messages li {
+.public-messages li, .public-message li {
     float: left;
     margin: 10px 3px;
     position: relative;
 }
 
-.public-messages li img, .your-messages li img {
+.public-messages li img, .your-messages li img, .public-message li img {
     float: left;
+}
+
+.public-message li {
+    margin-top: 0px;
 }
 
 h3.notice {
