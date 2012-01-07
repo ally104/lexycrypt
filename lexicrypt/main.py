@@ -40,10 +40,14 @@ def main():
 def message(id):
     """Single message display"""
     message = lex.get_message(id)
+    if request.args.get('embedded'):
+        embedded = True
+    else:
+        embedded = False
     if message:
         message = is_decryptable(lex, message, session)
 
-    return render_template('message.html', message=message)
+    return render_template('message.html', message=message, embedded=embedded)
 
 
 @app.route('/your_messages', methods=['GET'])

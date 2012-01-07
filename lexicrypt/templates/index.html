@@ -5,13 +5,6 @@
 {% endblock %}
 
 {% block content %}
-  {% if session['lex_token'] %}
-    <ul id="header">
-      <li><a href="{{ url_for('your_messages') }}">Your Messages</a></li>
-      <li><a href="{{ url_for('encrypt') }}">Encrypt Message</a></li>    
-    </ul>
-  {% endif %}
-
   <div class="inner-wrapper">
     <div id="message"></div>
     <ul class="public-messages">

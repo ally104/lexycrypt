@@ -10,10 +10,6 @@ $(function() {
         });
     });
 
-    $('a.delete').click(function(ev) {
-        ev.preventDefault();
-    });
-
     $('.decrypt button').click(function() {
         var self = $(this);
         var message = $('#message');
@@ -30,7 +26,7 @@ $(function() {
         });
     });
 
-    $('body').click(function() {
+    $('body').on('click', function() {
        $('#message').hide(); 
     });
 
@@ -100,7 +96,7 @@ $(function() {
         }); 
     });
 
-    $('.share input').focus(function() {
+    $('.share input, .embed input').focus(function() {
         $(this).select();
     });
 });

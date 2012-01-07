@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
-    {% block head %}
-        <head>
-            <title>{% block title %}{% endblock %}</title>
-            <meta content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" name="viewport" />
-            <meta content="yes" name="apple-mobile-web-app-capable" />
-            <meta content="chrome=1" http-equiv="X-UA-Compatible" />
-            <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
-            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
-        </head>
-    {% endblock %}
-    <body>
-        {% block content %}{% endblock %}
-        <script type="text/javascript">
-          var _gaq = _gaq || [];
-          _gaq.push(['_setAccount', 'UA-4319539-35']);
-          _gaq.push(['_trackPageview']);
-          (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-          })();
-        </script>
-    </body>
+  {% block head %}
+    <head>
+      <title>{% block title %}{% endblock %}</title>
+      <meta content="width=device-width, height=device-height, user-scalable=no, initial-scale=0.9, maximum-scale=0.9, minimum-scale=0.9" name="viewport">
+      <meta content="yes" name="apple-mobile-web-app-capable">
+      <meta content="chrome=1" http-equiv="X-UA-Compatible">
+      <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+      <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+      <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
+    </head>
+  {% endblock %}
+  <body>
+    <div class="embed">
+      {% block content %}{% endblock %}
+    </div>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-4319539-35']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  </body>
 </html>

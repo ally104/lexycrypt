@@ -5,51 +5,48 @@
 {% endblock %}
 
 {% block content %}
-  {% if session['lex_token'] %}
-    <ul id="header">
-      <li><a href="{{ url_for('main') }}" class="selected">Your Messages</a></li>
-      <li><a href="{{ url_for('encrypt') }}">Encrypt Message</a></li>    
-    </ul>
-
-    {% if messages %}
-      <div class="inner-wrapper">
-        <ul class="your-messages">
-          {% for message in messages %}
-            <li>
-              <img src="{{ message['message'] }}">
-              <p>{{ message['decrypted'] }}</p>
-              <p class="share">
-                <span>share</span>
-                <input type="text" value="{{ message['share'] }}">
-              </p>
-              <form method="post" action="/delete_message">
-                <input type="hidden" value="{{ message['message'] }}" name="message">
-                <button type="submit" class="delete">x</button>
-              </form>
-              <ul class="accessors hidden">
-                <li class="add-email">
-                  <input type="text" name="email" placeholder="Add Email">
-                  <button type="submit" class="add">+</button>
-                </li>
-                {% if message['emails'] %}
-                  {% for email in message['emails'] %}
-                    <li class="email">
-                      {{ email }}
-                      <a href="#" class="delete" data-email="{{ email }}"
-                          data-message="{{ message['message'] }}">x</a>
-                    </li>
-                  {% endfor %}
-                {% endif %}
-                <li class="toggle">Edit Email Access</li>
-              </ul>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% else %}
-      <div class="inner-wrapper">
-        <h3 class="notice">You have not created any messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
-      </div>
-    {% endif %}
+  {% if messages %}
+    <div class="inner-wrapper">
+      <ul class="your-messages">
+        {% for message in messages %}
+          <li>
+            <img src="{{ message['message'] }}">
+            <p>{{ message['decrypted'] }}</p>
+            <div class="share">
+              <span>share</span>
+              <input type="text" value="{{ message['share'] }}">
+            </div>
+            <div class="embed">
+              <span>embed</span>
+              <input type="text" value="<iframe src='{{ message['share'] }}' width='100%' frameborder='0'></iframe>">
+            </div>
+            <form method="post" action="/delete_message">
+              <input type="hidden" value="{{ message['message'] }}" name="message">
+              <button type="submit" class="delete">x</button>
+            </form>
+            <ul class="accessors hidden">
+              <li class="add-email">
+                <input type="text" name="email" placeholder="Add Email">
+                <button type="submit" class="add">+</button>
+              </li>
+              {% if message['emails'] %}
+                {% for email in message['emails'] %}
+                  <li class="email">
+                    {{ email }}
+                    <a href="#" class="delete" data-email="{{ email }}"
+                        data-message="{{ message['message'] }}">x</a>
+                  </li>
+                {% endfor %}
+              {% endif %}
+              <li class="toggle">Edit Email Access</li>
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="inner-wrapper">
+      <h3 class="notice">You have not created any messages. <a href="{{ url_for('encrypt') }}">Create one now</a>.</p>
+    </div>
   {% endif %}
 {% endblock %}

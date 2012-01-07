@@ -1,18 +1,32 @@
-{% extends "shared/minimal.html" %}
+{% if embedded %}
+  {% extends "shared/minimal.html" %}
+{% else %}
+  {% extends "shared/layout.html" %}
+{% endif %}
 
 {% block content %}
-  <div id="message"></div>
-  <ul class="public-message">
-    <li>
-      <img src="{{ message['message'] }}">
-      {% if session['lex_email'] and message['is_accessible'] %}
-        <div class="avatar">
-          <img src="{{ message['gravatar'] }}">
-        </div>
-        <div class="decrypt">
-          <button>Decrypt</button>
-        </div>
-      {% endif %}
-    </li>
-  </ul>
+  <div class="inner-wrapper{% if embedded %} blank{% endif %}">
+    <div id="message"></div>
+    <ul class="public-message">
+      <li>
+        <img src="{{ message['message'] }}">
+        {% if session['lex_email'] and message['is_accessible'] %}
+          <div class="avatar">
+            <img src="{{ message['gravatar'] }}">
+          </div>
+          <div class="decrypt">
+            <button>Decrypt</button>
+          </div>
+        {% endif %}
+        {% if embedded %}
+          <a href="http://lexicrypt.com" class="powered-lexicrypt" target="_blank"><img src="https://s3.amazonaws.com/lexicrypt_share/lexicrypt.png" title="Lexicrypt">Lexicrypt</a>
+          <script type="text/javascript">
+            $(function() {
+              $('iframe').css('height', $(document.body).height() + 330 + 'px');
+            });
+          </script>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
 {% endblock %}

@@ -136,6 +136,12 @@ div.inner-wrapper {
     width: 100%;
 }
 
+div.inner-wrapper.blank {
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
 input[type="text"] {
     font-size: 13px;
     padding: 3px;
@@ -183,13 +189,14 @@ button:hover {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-shadow: #ddd 1px 1px 2px;
+    clear: both;
     float: left;
     font-family: Arial, sans-serif;
     font-size: 13px;
     margin: 0px 10px 40px 10px;
-    width: 315px;
     padding: 5px;
     position: relative;
+    width: 315px;
     z-index: 0;
 }
 
@@ -223,6 +230,7 @@ h3.notice a:hover {
 
 .your-messages p {
     float: right;
+    overflow: hidden;
 }
 
 .your-messages li img {
@@ -237,7 +245,11 @@ h3.notice a:hover {
     width: 244px;
 }
 
-.your-messages li p.share {
+.your-messages li div {
+    margin: 0px;
+}
+
+.your-messages li .share, .your-messages li .embed {
     background-color: #fbfa8a;
     color: #595e3a;
     float: right;
@@ -246,7 +258,11 @@ h3.notice a:hover {
     width: 252px;
 }
 
-.your-messages li p.share span {
+.your-messages li .embed {
+    background-color: #8ed3ff;
+}
+
+.your-messages li .share span, .your-messages li .embed span {
     background-color: #fcfbcf;
     border-radius: 3px;
     display: block;
@@ -254,7 +270,11 @@ h3.notice a:hover {
     padding: 3px 5px 3px 5px;
 }
 
-.your-messages li p.share input {
+.your-messages li .embed span {
+    background-color: #c3e8ff;
+}
+
+.your-messages li .share input, .your-messages li .embed input {
     color: #555;
     font-size: 12px;
     margin: 1px 0px 0px 4px;
@@ -370,20 +390,30 @@ div.decrypt button {
 }
 
 #message {
-    background-color: #fff;
-    border: 3px solid #111;
+    background-color: #f7ff9f;
+    border: 2px solid #5f614c;
     border-radius: 3px;
-    box-shadow: #ccc 1px 1px 3px;
+    box-shadow: #888 1px 1px 2px;
     color: #333;
     display: none;
     font-family: Arial, sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     left: 20px;
-    line-height: 17px;
+    line-height: 22px;
     margin-right: 30px;
     max-width: 550px;
     min-width: 254px;
+    overflow: hidden;
     padding: 15px;
     position: fixed;
     z-index: 2;
+}
+
+.powered-lexicrypt {
+    display: block;
+    font-size: 1px;
+    left: 33px;
+    position: absolute;
+    text-indent: -9999px;
+    top: 0px;
 }
