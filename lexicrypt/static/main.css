@@ -417,3 +417,11 @@ div.decrypt button {
     text-indent: -9999px;
     top: 0px;
 }
+
+body > .embedded {
+    margin: 0px;
+}
+
+.embedded #message {
+    width: 240px;
+}

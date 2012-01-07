@@ -12,10 +12,9 @@
       <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
     </head>
   {% endblock %}
-  <body>
-    <div class="embed">
-      {% block content %}{% endblock %}
-    </div>
+  <body class="embedded">
+    {% block content %}{% endblock %}
+
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-4319539-35']);
