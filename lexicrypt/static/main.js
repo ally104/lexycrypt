@@ -50,8 +50,9 @@ $(function() {
     $('.accessors li.toggle').click(function() {
         var self = $(this);
         var bottom = 26;
+
         $('.your-messages > li').removeClass('selected');
-        
+
         if(self.parent().hasClass('hidden')) {
             // calculate how far the bottom should be based on
             // how many emails there are.
