@@ -18,9 +18,7 @@
             </div>
             <div class="embed">
               <span>embed</span>
-              <input type="text" value="<iframe
-                  src='{{ message['share'] }}?embedded=true' height='320'
-                  width='100%' frameborder='0'>message</iframe>">
+              <input type="text" value="<iframe src='{{ message['share'] }}?embedded=true' height='320' width='100%' frameborder='0'>message</iframe>">
             </div>
             <form method="post" action="/delete_message">
               <input type="hidden" value="{{ message['message'] }}" name="message">
