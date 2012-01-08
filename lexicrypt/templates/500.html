@@ -1,0 +1,11 @@
+{% extends "shared/error.html" %}
+
+{% block title %}
+    lexicrypt.encrypt
+{% endblock %}
+
+{% block content %}
+  <div class="error-wrapper">
+    <p class="error">Something happened that didn't intend to happen! Go back <a href="{{ url_for('main') }}">here</a></p>
+  </div>
+{% endblock %}

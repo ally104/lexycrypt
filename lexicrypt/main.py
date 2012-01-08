@@ -46,8 +46,9 @@ def message(id):
         embedded = False
     if message:
         message = is_decryptable(lex, message, session)
-
-    return render_template('message.html', message=message, embedded=embedded)
+        return render_template('message.html', message=message, embedded=embedded)
+    else:
+        return render_template('404.html')
 
 
 @app.route('/your_messages', methods=['GET'])
@@ -168,6 +169,16 @@ def logout():
     session['lex_token'] = None
     session['lex_email'] = None
     return redirect(url_for('main'))
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html')
+
+
+@app.errorhandler(500)
+def something_broke(error):
+    return render_template('500.html')
 
 
 if __name__ == '__main__':

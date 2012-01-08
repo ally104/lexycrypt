@@ -66,6 +66,10 @@ body {
     padding: 10px;
 }
 
+body.error {
+    background-image: url('/static/images/error.png');
+}
+
 h1 {
     background: url('/static/images/logo.png') no-repeat;
     float: left;
@@ -103,7 +107,7 @@ ul#header {
     display: block;
     float: left;
     height: 34px;
-    line-height: 25px;
+    line-height: 27px;
 }
 
 ul#header li a {
@@ -116,7 +120,7 @@ ul#header li a {
 
 ul#header li {
     float: left;
-    margin: 13px 20px 0px 0px;
+    margin: 13px 15px 0px 0px;
 }
 
 ul#header li a:hover, ul#header li a.selected {
@@ -145,7 +149,7 @@ div.inner-wrapper.blank {
 input[type="text"] {
     font-size: 13px;
     padding: 3px;
-    width: 270px;
+    width: 250px;
 }
 
 textarea {
@@ -189,14 +193,13 @@ button:hover {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-shadow: #ddd 1px 1px 2px;
-    clear: both;
     float: left;
     font-family: Arial, sans-serif;
     font-size: 13px;
     margin: 0px 10px 40px 10px;
     padding: 5px;
     position: relative;
-    width: 315px;
+    width: 300px;
     z-index: 0;
 }
 
@@ -242,7 +245,7 @@ h3.notice a:hover {
     color: #555;
     line-height: 18px;
     padding: 8px;
-    width: 244px;
+    width: 229px;
 }
 
 .your-messages li div {
@@ -255,7 +258,7 @@ h3.notice a:hover {
     float: right;
     margin-top: 5px;
     padding: 4px;
-    width: 252px;
+    width: 237px;
 }
 
 .your-messages li .embed {
@@ -279,7 +282,7 @@ h3.notice a:hover {
     font-size: 12px;
     margin: 1px 0px 0px 4px;
     padding: 3px;
-    width: 190px;
+    width: 175px;
 }
 
 .your-messages li.selected {
@@ -327,7 +330,7 @@ ul.accessors li {
     color: #222;
     line-height: 15px;
     margin: 0px;
-    width: 304px;
+    width: 290px;
 }
 
 ul.accessors.hidden li.email, ul.accessors.hidden li.add-email {
@@ -424,4 +427,25 @@ body > .embedded {
 
 .embedded #message {
     width: 240px;
+}
+
+p.error {
+    color: #fff;
+    font-size: 50px;
+    line-height: 55px;
+    text-shadow: #222 2px 2px 1px;
+    text-transform: uppercase;
+}
+
+p.error a {
+    background-color: #f6ff65;
+    color: #222;
+    padding: 0px 3px 0px 3px;
+    text-decoration: none;
+    text-shadow: none;
+}
+
+p.error a:hover {
+    background-color: #222;
+    color: #fff;
 }

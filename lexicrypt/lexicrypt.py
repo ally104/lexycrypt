@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import ast
 import base64
+import bson
 import os
 import random
 import time
@@ -59,6 +60,8 @@ class Lexicrypt():
         """Add the email to the access list for
         the message, only if the message exists.
         """
+        if len(email.strip()) < 3:
+            return False
         user_token = self.db.messages.find({"message":image_path,
                                             "token":sender_token})
         if user_token:
@@ -90,8 +93,11 @@ class Lexicrypt():
     
     def get_message(self, id):
         """Retrieve a single message"""
-        message = self.db.messages.find_one({"_id":ObjectId(id)})
-        return message
+        try:
+            message = self.db.messages.find_one({"_id":ObjectId(id)})
+            return message
+        except bson.errors.InvalidId:
+            return False
 
     def remove_email_accessor(self, image_path, email, sender_token):
         """Remove an email from the access list for

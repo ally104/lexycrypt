@@ -84,12 +84,11 @@ $(function() {
             data: { "message": message, "email": email.val() },
             type: 'POST',
             dataType: 'json',
-            success: function(data) {    
+            success: function(data) {
                 var email_link = $('<a href="#" class="delete" data-message="'+message+
                                    '" data-email="'+data['email']+'">x</a>');
                 var email_el = $('<li class="email"></li>');
                 email_el.append(data['email']).append(email_link);
-                console.log(email_el);
                 self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
                 email_el.insertBefore(self.closest('.accessors').find('.toggle'));
                 email.val('');
