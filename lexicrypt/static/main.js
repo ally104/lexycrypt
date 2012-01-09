@@ -26,7 +26,7 @@ $(function() {
         });
     });
 
-    $('body').on('click', function() {
+    $('body').on('click', '#message', function() {
        $('#message').hide(); 
     });
 
