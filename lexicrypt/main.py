@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import simplejson as json
 import time
 
@@ -93,7 +94,6 @@ def set_email():
     bid_fields = {'assertion':request.form['bid_assertion'],
                   'audience':settings.DOMAIN}
     headers = {'Content-type':'application/x-www-form-urlencoded'}
-    h.disable_ssl_certificate_validation=True
     resp, content = h.request('https://browserid.org/verify',
                               'POST',
                               body=urlencode(bid_fields),
@@ -115,11 +115,11 @@ def set_message():
     """Generate the image for this message and return
     the url and image to the user
     """
+    filename = str(int(time.time()))
+    request.files['photo'].save(os.path.join('tmp/', filename))
     lex.get_or_create_email(session['lex_email'])
-    image_filename = '%s.png' % str(int(time.time()))
     lex.encrypt_message(request.form['message'],
-                        'tmp/',
-                        image_filename,
+                        filename,
                         session.get('lex_token'))
     return redirect(url_for('your_messages'))
 

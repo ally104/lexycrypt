@@ -18,7 +18,8 @@ import settings
 
 AES = AES.new(settings.SECRET_KEY, AES.MODE_ECB)
 BLOCK_SIZE = 16
-IMAGE_WIDTH = 50
+IMAGE_WIDTH = 100
+IMAGE_HEIGHT = 100
 RGB = 255
 
 
@@ -109,7 +110,7 @@ class Lexicrypt():
             email = email.lower().strip()
             accessor = self.db.users.find_one({"email":email})
             self.db.messages.update({"message":image_path},
-                                    {"$pull": {"accessors":accessor['token']}})
+                                    {"$pull":{"accessors":accessor['token']}})
 
     def is_accessible(self, image_path, accessor_token):
         """Check to see if the user can access the image"""
@@ -120,16 +121,15 @@ class Lexicrypt():
                 return True
         return False
 
-    def encrypt_message(self, message, image_path, filename, sender_token):
+    def encrypt_message(self, message, filename, sender_token):
         """Encrypt a block of text.
-        Currently testing with AES and truncating to 250 characters.
+        Currently testing with AES and truncating to 300 characters.
         """
         sender_token = self.db.users.find_one({"token":sender_token})
-        if sender_token:
+        if sender_token and filename:
             cipher_text = AES.encrypt(self._pad_message(
                     unicode(message[:250]).encode('utf-8')))
-            image = self._generate_image(cipher_text, image_path,
-                    filename, sender_token['token'])
+            image = self._generate_image(cipher_text, filename, sender_token['token'])
             return image
         else:
             return False
@@ -149,15 +149,20 @@ class Lexicrypt():
                 else:
                     im = StringIO(urllib.urlopen(image_path).read())
                     image = Image.open(im).getdata()
-                width, height = image.size
-                for y in range(height):
-                    c = image.getpixel((0, y))
+                x_axis = 0
+                y_axis = 0
+                for idx, y in enumerate(result_map):
+                    if y_axis > 99:
+                        y_axis = 0
+                        x_axis += 1
+                    c = image.getpixel((x_axis, y_axis))
                     try:
-                        c_idx = [v[1] for v in result_map].index(c)
+                        c_idx = [v[1][:3] for v in result_map].index(c)
                         message += result_map[c_idx][0]
                     except ValueError:
                         print 'Image decryption failed: image data corrupt.'
                         return ''
+                    y_axis += 1
                 cipher_text = AES.decrypt(message).strip()
                 return cipher_text
             else:
@@ -187,63 +192,70 @@ class Lexicrypt():
                     current_count += 1
         return message
 
-    def _generate_image(self, cipher_text, image_path, filename, sender_token):
-        """Assign each character with a specific
-        colour. Also save the token for the sender.
+    def _generate_image(self, cipher_text, filename, sender_token):
+        """Assign a pixel on the image to a character. If
+        the pixel is already reserved, select its nearest
+        neighbour.
         """
         cipher_length = len(cipher_text)
-        image = Image.new('RGB', (IMAGE_WIDTH, cipher_length))
-        putpixel = image.im.putpixel
+        if self.env == 'test':
+            image = Image.open(filename)
+        else:
+            image = Image.open('tmp/' + filename)
+        x_axis = 0
+        y_axis = 0
         char_array = [v[0] for v in self.char_array]
+        img = image.load()
+
         for idx, c in enumerate(cipher_text):
+            if y_axis > 99:
+                y_axis = 0
+                x_axis += 1
             if c in char_array:
                 c_idx = char_array.index(c)
-                rgb = self.char_array[c_idx][1]
+                rgba = self.char_array[c_idx][1]
             else:
-                rgb = self._generate_rgb(c)
-                self.char_array.append((c, rgb))
-            for i in range(IMAGE_WIDTH):
-                putpixel((i, idx), rgb)
+                rgba = self._generate_rgba(img[x_axis, y_axis], c)
+                self.char_array.append((c, rgba))
+            img[x_axis, y_axis] = rgba
+            y_axis += 1
         if self.env == 'test':
-            image_full_path = '%s%s' % (image_path, filename)
-            image.save(image_full_path)
+            image_full_path = filename
         else:
-            image_full_path = os.path.join(image_path, filename)
+            image_full_path = os.path.join('tmp/', filename + '.png')
             image.save(image_full_path)
             aws_key = Key(settings.BUCKET)
             aws_key.key = filename
             aws_key.set_contents_from_filename(image_full_path)
-            image_full_path = "%s%s" % (settings.IMAGE_URL, filename)
-
+            image_full_path = '%s%s' % (settings.IMAGE_URL, filename)
         bchar_array = base64.b64encode(str(self.char_array))
         self.db.messages.update({"message":image_full_path},
-                                {"$set": {"result_map":bchar_array,
-                                          "token":sender_token,
-                                          "created_at":int(time.time())}},
-                                          upsert=True)
+                                {"$set":{"result_map":bchar_array,
+                                         "token":sender_token,
+                                         "created_at":int(time.time())}},
+                                         upsert=True)
         self.db.messages.update({"message":image_full_path},
                                 {"$addToSet":{"accessors":sender_token}},
                                  upsert=True)
+        self.rgba_used = []
         self.char_array = []
         return image_full_path
 
-    def _generate_rgb(self, c):
-        """Generate the RGB values for this
-        character. If the RGB value is already
-        taken, try again.
+    def _generate_rgba(self, rgb, c):
+        """Generate the alpha value for this character. If the value
+        is already taken, try again. If we've used up all the alpha
+        values, move towards changing the blue values
         """
-        rgb = (random.randint(0, RGB),
-               random.randint(0, RGB),
-               random.randint(0, RGB))
+        rgba = (rgb[0], rgb[1], rgb[2], random.randint(1, RGB))
         if c in [v[1] for v in self.char_array]:
             # call this function again until we are happy
-            self._generate_rgb()
+            self._generate_rgba(rgb, c)
         else:
-            return rgb
+            return rgba
 
     def _generate_token(self, email):
-        """Generate a token based on the timestamp
-        and the user's email address.
+        """Generate a token based on the timestamp and the user's
+        email address.
         """
         random_int = str(random.randrange(100, 10000))
         token_string = '%s%s%s' % (random_int,

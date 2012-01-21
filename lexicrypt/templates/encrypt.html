@@ -7,7 +7,8 @@
 {% block content %}
   <div class="inner-wrapper">
     <div id="encrypt-message">
-      <form method="post" action="/set_message">
+      <form method="post" enctype="multipart/form-data" action="/set_message">
+        <input type="file" name="photo">
         <textarea name="message" placeholder="300 characters maximum"></textarea>
         <button type="submit">Encrypt Message</button>
       </form>

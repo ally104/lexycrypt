@@ -41,8 +41,7 @@ class LexicryptTestCase(unittest.TestCase):
         sender_token = lex.get_or_create_email(sender)['token']
         message = u'this is the message'
         lex.encrypt_message(message,
-                            'lexicrypt/tests/images/',
-                            'test.png',
+                            'lexicrypt/tests/images/test.png',
                             sender_token)
         receiver1 = 'test2@test.com'
         receiver2 = 'test3@test.com'
@@ -64,8 +63,7 @@ class LexicryptTestCase(unittest.TestCase):
         sender_token = lex.get_or_create_email(sender)
         message = u'this is the message 汉字/漢字 hànzì'
         lex.encrypt_message(message,
-                            'lexicrypt/tests/images/',
-                            'test.png',
+                            'lexicrypt/tests/images/test.png',
                             sender_token)
         receiver1 = 'test5@test.com'
         receiver2 = 'test6@test.com'
@@ -95,21 +93,19 @@ class LexicryptTestCase(unittest.TestCase):
         email = 'test@test.com'
         sender_token = lex.get_or_create_email(email)['token']
         message1 = u'this is the message1'
-        lex.encrypt_message(message1, 'lexicrypt/tests/images/',
-                            'test.png', sender_token)
+        lex.encrypt_message(message1, 'lexicrypt/tests/images/test2.png', sender_token)
         receiver1 = 'test2@test.com'
         r_email1 = lex.get_or_create_email(receiver1)
-        lex.add_email_accessor('lexicrypt/tests/images/test.png',
+        lex.add_email_accessor('lexicrypt/tests/images/test2.png',
                                receiver1,
                                sender_token)
-        dmessage1 = lex.decrypt_message('lexicrypt/tests/images/test.png',
+        dmessage1 = lex.decrypt_message('lexicrypt/tests/images/test2.png',
                                         r_email1['token'])
 
         assert dmessage1 == message1
 
         message2 = u'this is the message2'
-        lex.encrypt_message(message2, 'lexicrypt/tests/images/',
-                            'test2.png', sender_token)
+        lex.encrypt_message(message2, 'lexicrypt/tests/images/test2.png', sender_token)
         receiver2 = 'test3@test.com'
         r_email2 = lex.get_or_create_email(receiver2)
         lex.add_email_accessor('lexicrypt/tests/images/test2.png',
@@ -127,8 +123,7 @@ class LexicryptTestCase(unittest.TestCase):
         """
         message = u'this is the message'
 
-        assert not lex.encrypt_message(message, 'lexicrypt/tests/images/',
-                                       'test.png', '1111')
+        assert not lex.encrypt_message(message, 'lexicrypt/tests/images/test.png', '1111')
 
     def testInvalidDecryption(self):
         """Validate the altered encrypted image
@@ -137,8 +132,7 @@ class LexicryptTestCase(unittest.TestCase):
         email = 'test@test.com'
         sender_token = lex.get_or_create_email(email)['token']
         message = u'this is the message'
-        lex.encrypt_message(message, 'lexicrypt/tests/images/',
-                            'test.png', sender_token)
+        lex.encrypt_message(message, 'lexicrypt/tests/images/test.png', sender_token)
         image = Image.open('lexicrypt/tests/images/test.png')
         putpixel = image.putpixel
         putpixel((0, 10), 255)
@@ -157,8 +151,7 @@ class LexicryptTestCase(unittest.TestCase):
         """
         sender_token = lex.get_or_create_email('test@test.com')
         message = u'this is the message'
-        lex.encrypt_message(message, 'lexicrypt/tests/images/',
-                            'test.png', sender_token['token'])
+        lex.encrypt_message(message, 'lexicrypt/tests/images/test.png', sender_token['token'])
         other_token = lex.get_or_create_email('test2@test.com')
         
         lex.delete_message('lexicrypt/tests/images/test.png',
