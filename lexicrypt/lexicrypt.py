@@ -237,7 +237,7 @@ class Lexicrypt():
                random.randint(0, RGB))
         if c in [v[1] for v in self.char_array]:
             # call this function again until we are happy
-            self._generate_rgb()
+            self._generate_rgb(c)
         else:
             return rgb
 
