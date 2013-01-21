@@ -24,16 +24,18 @@
       <h1><a href="{{ url_for('main') }}">lexicrypt</a></h1>
       {% if session['lex_email'] %}
         <a href="{{ url_for('logout') }}" id="logout">Logout</a>
-
-        <ul id="header">
-          <li><a href="{{ url_for('your_messages') }}">Created Messages</a></li>
-          <li><a href="{{ url_for('encrypt') }}">Encrypt New Message</a></li>
-          <li><a href="https://github.com/ednapiranha/lexicrypt">Code</a></li>
-          <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
-        </ul>
       {% else %}
         <a href="#" id="login">Log in with Persona</a>
-      {% endif %}
+      {% end %}
+
+      <ul id="header">
+        {% if session['lex_email'] %}
+          <li><a href="{{ url_for('your_messages') }}">Created Messages</a></li>
+          <li><a href="{{ url_for('encrypt') }}">Encrypt New Message</a></li>
+        {% endif %}
+        <li><a href="https://github.com/ednapiranha/lexicrypt">Code</a></li>
+        <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
+      </ul>
 
       {% block content %}{% endblock %}
       {% block footer %}
