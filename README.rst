@@ -12,13 +12,15 @@ http://lexicrypt.com
 What it is
 ==========
 
-Token-based message distribution using encryption and steganography.
+Token-based message distribution using encryption.
 
 
 Installation
 ============
 
 sudo pip install -r requirements.txt
+
+mkdir lexicrypt/tmp
 
 
 Message Flow
@@ -52,7 +54,7 @@ Completed Items
 * Auto-generate image filenames
 * If a visitor's api key matches one in the char_array's list, provide a
   browser notification that this image can be decrypted
-* Save self.char_array to a database, such that: author[messages: 
+* Save self.char_array to a database, such that: author[messages:
   [message: accessors: [api_key_1, api_key_2, api_key_n]]]
 * Allow them to decrypt by providing a link to the image
 * Allow removal of access tokens from message list

@@ -65,9 +65,12 @@ $(function() {
         var self = $(this);
         var message = $('#message');
         $('.decrypt .message').hide();
+
         $.ajax({
             url: '/get_message',
-            data: { "message": self.parent().parent().find('img').attr('src') },
+            data: {
+              'message': self.parent().parent().find('img').attr('src')
+            },
             type: 'POST',
             dataType: 'json',
             success: function(data) {
@@ -82,20 +85,26 @@ $(function() {
     });
 
     $('.accessors').on('click', 'a.delete', function(ev) {
-        ev.preventDefault();
-        var self = $(this);
-        var bottom = (26 * self.closest('.accessors').find('li.email').length)+
-                     self.closest('.accessors').find('li.email').length + 33;
-        $.ajax({
-            url: '/remove_email',
-            data: { "message": self.data('message'), "email": self.data('email') },
-            type: 'POST',
-            dataType: 'json',
-            success: function(data) {
-                self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
-                self.parent().remove();
-            }
-        });
+      ev.preventDefault();
+      var self = $(this);
+      var bottom = (26 * self.closest('.accessors').find('li.email').length) +
+        self.closest('.accessors').find('li.email').length + 33;
+
+      $.ajax({
+        url: '/remove_email',
+        data: {
+          'message': self.data('message'),
+          'email': self.data('email')
+        },
+        type: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            self.closest('.accessors').css({
+              'bottom': '-' + bottom + 'px'
+            });
+            self.parent().remove();
+        }
+      });
     });
 
     $('.accessors li.toggle').click(function() {
@@ -110,14 +119,18 @@ $(function() {
             $('.your-messages > li').addClass('hidden');
             self.closest('.your-messages > li').removeClass('hidden');
 
-            bottom = (bottom * self.parent().find('li.email').length)+
-                     self.parent().find('li.email').length + bottom + 34;
-            self.parent().css({'bottom': '-' + bottom + 'px'});
+            bottom = (bottom * self.parent().find('li.email').length) +
+              self.parent().find('li.email').length + bottom + 34;
+            self.parent().css({
+              'bottom': '-' + bottom + 'px'
+            });
             self.closest('.your-messages > li').addClass('selected');
             self.parent().removeClass('hidden');
             self.text('Hide');
         } else {
-            self.parent().css({'bottom': '-26px'});
+            self.parent().css({
+              'bottom': '-26px'
+            });
             self.parent().addClass('hidden');
             self.text('Edit Email Access');
             $('.your-messages > li').removeClass('hidden');
@@ -126,24 +139,28 @@ $(function() {
 
     $('.add-email button').click(function() {
         var self = $(this);
-        var bottom = (26 * (self.closest('.accessors').find('li.email').length + 1))+
-                     self.closest('.accessors').find('li.email').length + 61;
+        var bottom = (26 * (self.closest('.accessors').find('li.email').length + 1)) +
+          self.closest('.accessors').find('li.email').length + 61;
         var message = self.closest('li.selected').find('img').attr('src');
         var email = self.closest('li.add-email').find('input');
+
         $.ajax({
-            url: '/add_email',
-            data: { "message": message, "email": email.val() },
-            type: 'POST',
-            dataType: 'json',
-            success: function(data) {
-                var email_link = $('<a href="#" class="delete" data-message="'+message+
-                                   '" data-email="'+data['email']+'">x</a>');
-                var email_el = $('<li class="email"></li>');
-                email_el.append(data['email']).append(email_link);
-                self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
-                email_el.insertBefore(self.closest('.accessors').find('.toggle'));
-                email.val('');
-            }
+          url: '/add_email',
+          data: {
+            'message': message,
+            'email': email.val()
+          },
+          type: 'POST',
+          dataType: 'json',
+          success: function(data) {
+            var emailLink = $('<a href="#" class="delete" data-message="' +
+              message + '" data-email="'+data['email']+'">x</a>');
+            var emailEl = $('<li class="email"></li>');
+            emailEl.append(data['email']).append(emailLink);
+            self.closest('.accessors').css({ 'bottom': '-' + bottom + 'px' });
+            emailEl.insertBefore(self.closest('.accessors').find('.toggle'));
+            email.val('');
+          }
         });
     });
 
