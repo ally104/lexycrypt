@@ -5,14 +5,14 @@ import bson
 import os
 import random
 import time
-import urllib
+import urllib2
 
 from boto.s3.key import Key
+from bson.objectid import ObjectId
 from cStringIO import StringIO
 from Crypto.Cipher import AES
 from PIL import Image
 from pymongo import DESCENDING
-from pymongo.objectid import ObjectId
 
 import settings
 
@@ -24,14 +24,14 @@ RGB = 255
 
 class Lexicrypt():
     """All the encryption/decryption functionality
-    for text and images
+    for text and images.
     """
     def __init__(self):
         self.char_array = []
         self.token = ''
         self.env = 'dev'
         self.db = settings.DATABASE
-    
+
     def set_environment(self, env='dev'):
         if env == 'test':
             self.env = env
@@ -49,7 +49,7 @@ class Lexicrypt():
         emailer = self.db.users.find_one({"email":email})
         self.token = emailer['token']
         return emailer
-    
+
     def get_email_by_token(self, token):
         """Return user's email by token reference"""
         emailer = self.db.users.find_one({"token":token})
@@ -90,7 +90,7 @@ class Lexicrypt():
         except TypeError:
             messages = []
         return messages
-    
+
     def get_message(self, id):
         """Retrieve a single message"""
         try:
@@ -100,9 +100,7 @@ class Lexicrypt():
             return False
 
     def remove_email_accessor(self, image_path, email, sender_token):
-        """Remove an email from the access list for
-        the message.
-        """
+        """Remove an email from the access list for the message."""
         sender_token = self.db.users.find({"message":image_path,
                                            "token":sender_token})
         if sender_token:
@@ -136,8 +134,9 @@ class Lexicrypt():
 
     def decrypt_message(self, image_path, accessor_token):
         """Load the image and decrypt the block of text.
-        If it fails, return an empty string rather than False
+        If it fails, return an empty string rather than False.
         """
+
         try:
             message = self.db.messages.find_one({"message":image_path})
             if accessor_token in message['accessors']:
@@ -147,7 +146,7 @@ class Lexicrypt():
                 if self.env == 'test':
                     image = Image.open(image_path).getdata()
                 else:
-                    im = StringIO(urllib.urlopen(image_path).read())
+                    im = StringIO(urllib2.urlopen(image_path).read())
                     image = Image.open(im).getdata()
                 width, height = image.size
                 for y in range(height):
@@ -163,10 +162,10 @@ class Lexicrypt():
             else:
                 return ''
         except TypeError:
-            return ''
+            raise
 
     def delete_message(self, image_path, sender_token):
-        """Delete message"""
+        """Delete message."""
         message_token = self.db.messages.find({"message":image_path,
                                                "token":sender_token})
         if message_token:

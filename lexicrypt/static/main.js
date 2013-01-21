@@ -1,13 +1,64 @@
 $(function() {
-    var email_item_length = 16;
+    var emailItemLength = 16;
 
-    $('#login').click(function() {
-        navigator.id.getVerifiedEmail(function(assertion) {
-            if(assertion) {
-                $('form input').val(assertion);
-                $('form').submit();
+    /* Authenticatication for Persona */
+    $('#login').click(function(ev) {
+      ev.preventDefault();
+      navigator.id.request();
+    });
+
+    $('#logout').click(function(ev) {
+      ev.preventDefault();
+      navigator.id.logout();
+    });
+
+    navigator.id.watch({
+      loggedInUser: currentUser,
+      onlogin: function(assertion) {
+        $.ajax({
+          type: 'POST',
+          url: '/set_email',
+          data: { assertion: assertion },
+          success: function(res, status, xhr) {
+            window.location.reload();
+          },
+          error: function(res, status, xhr) {
+            console.log('Login failure:' + res.status + ': ' + res.statusText);
+
+            // Remove any old notices
+            $('.notice.sign-in-error').remove();
+
+            var message = $('<div></div>');
+            message.addClass('notice error dismissable sign-in-error');
+            message.html('We were unable to sign you in. Please try again.');
+
+            message.on('click', function() {
+              $(this).fadeOut(600, function() {
+                $(this).remove();
+              });
+            });
+
+            message.hide();
+            $('#main-notices').prepend(message);
+
+            message.fadeOut(0, function() {
+              message.fadeIn(400);
+            });
+          }
+          });
+        },
+        onlogout: function() {
+          $.ajax({
+            type: 'POST',
+            url: '/logout',
+            success: function(res, status, xhr) {
+              window.location.reload();
+            },
+            error: function(res, status, xhr) {
+              console.log('Logout failure: ' + res.status + ': ' + res.statusText);
             }
-        });
+          });
+        }
     });
 
     $('.decrypt button').click(function() {
@@ -27,7 +78,7 @@ $(function() {
     });
 
     $('body').on('click', '#message', function() {
-       $('#message').hide(); 
+       $('#message').hide();
     });
 
     $('.accessors').on('click', 'a.delete', function(ev) {
@@ -40,7 +91,7 @@ $(function() {
             data: { "message": self.data('message'), "email": self.data('email') },
             type: 'POST',
             dataType: 'json',
-            success: function(data) {    
+            success: function(data) {
                 self.closest('.accessors').css({'bottom': '-' + bottom + 'px'});
                 self.parent().remove();
             }
@@ -93,7 +144,7 @@ $(function() {
                 email_el.insertBefore(self.closest('.accessors').find('.toggle'));
                 email.val('');
             }
-        }); 
+        });
     });
 
     $('.share input, .embed input').focus(function() {

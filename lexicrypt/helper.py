@@ -7,7 +7,7 @@ import settings
 
 
 def authenticated(f):
-    """Check if user is logged in"""
+    """Check if user is logged in."""
     @wraps(f)
     def decorated(*args, **kwargs):
         if not session.get('lex_email'):
@@ -16,10 +16,8 @@ def authenticated(f):
     return decorated
 
 def is_decryptable(lex, message, session):
-    """If message is decryptable, add
-    the extra flags
-    """
-    message['share'] = '%s%s' % (settings.DOMAIN, url_for('message', id=str(message['_id'])))
+    """If message is decryptable, add the extra flags."""
+    message['share'] = '%s%s' % (settings.SITE_URL, url_for('message', id=str(message['_id'])))
     if lex.is_accessible(message['message'],
                          session.get('lex_token')):
         email = str(md5.new(lex.get_email_by_token(message['token'])).hexdigest())
