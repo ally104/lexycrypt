@@ -4,4 +4,5 @@ pycrypto==2.6
 pymongo==2.4.1
 httplib2==0.7.7
 boto==2.7.0
+simplejson==3.0.7
 -e git://github.com/mozilla/PyBrowserID.git@7281da84cd9e3ca3b4f5f3073d9096d5dad32f39#egg=PyBrowserID-dev
