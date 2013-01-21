@@ -67,11 +67,11 @@ class Lexicrypt():
         if user_token:
             accessor = self.get_or_create_email(email)
             self.db.messages.update({"message":image_path},
-                               {"$set": {"token":sender_token}},
-                               upsert=True)
+                                    {"$set": {"token":sender_token}},
+                                    upsert=True)
             self.db.messages.update({"message":image_path, "token":sender_token},
-                               {"$addToSet":{"accessors":accessor['token']}},
-                               upsert=True)
+                                    {"$addToSet":{"accessors":accessor['token']}},
+                                    upsert=True)
             return accessor['token']
         else:
             return False
