@@ -42,17 +42,17 @@ class Lexicrypt():
         or create it if it doesn't exist.
         """
         email = email.lower().strip()
-        if not self.db.users.find_one({"email":email}):
-            self.db.users.update({"email":email},
-                                 {"$set":{"token":self._generate_token(email)}},
+        if not self.db.users.find_one({'email':email}):
+            self.db.users.update({'email':email},
+                                 {'$set':{'token':self._generate_token(email)}},
                                   upsert=True)
-        emailer = self.db.users.find_one({"email":email})
+        emailer = self.db.users.find_one({'email':email})
         self.token = emailer['token']
         return emailer
 
     def get_email_by_token(self, token):
         """Return user's email by token reference"""
-        emailer = self.db.users.find_one({"token":token})
+        emailer = self.db.users.find_one({'token':token})
         if emailer:
             return emailer['email']
 
@@ -62,16 +62,16 @@ class Lexicrypt():
         """
         if len(email.strip()) < 3:
             return False
-        user_token = self.db.messages.find({"message":image_path,
-                                            "token":sender_token})
+        user_token = self.db.messages.find({'message':image_path,
+                                            'token':sender_token})
         if user_token:
             accessor = self.get_or_create_email(email)
-            self.db.messages.update({"message":image_path},
-                                    {"$set": {"token":sender_token}},
-                                    upsert=True)
-            self.db.messages.update({"message":image_path, "token":sender_token},
-                                    {"$addToSet":{"accessors":accessor['token']}},
-                                    upsert=True)
+            self.db.messages.update({'message':image_path},
+                                    {'$set': {'token':sender_token}},
+                                     upsert=True)
+            self.db.messages.update({'message':image_path, 'token':sender_token},
+                                    {'$addToSet':{'accessors':accessor['token']}},
+                                     upsert=True)
             return accessor['token']
         else:
             return False
@@ -84,9 +84,11 @@ class Lexicrypt():
         try:
             if sender_token:
                 messages = self.db.messages.find({
-                        "token": sender_token}).sort("created_at", DESCENDING).limit(int(limit))
+                        'token': sender_token}).sort(
+                            'created_at', DESCENDING).limit(int(limit))
             else:
-                messages = self.db.messages.find().sort("created_at", DESCENDING).limit(int(limit))
+                messages = self.db.messages.find().sort(
+                            'created_at', DESCENDING).limit(int(limit))
         except TypeError:
             messages = []
         return messages
@@ -94,26 +96,26 @@ class Lexicrypt():
     def get_message(self, id):
         """Retrieve a single message"""
         try:
-            message = self.db.messages.find_one({"_id":ObjectId(id)})
+            message = self.db.messages.find_one({'_id':ObjectId(id)})
             return message
         except bson.errors.InvalidId:
             return False
 
     def remove_email_accessor(self, image_path, email, sender_token):
         """Remove an email from the access list for the message."""
-        sender_token = self.db.users.find({"message":image_path,
-                                           "token":sender_token})
+        sender_token = self.db.users.find({'message':image_path,
+                                           'token':sender_token})
         if sender_token:
             email = email.lower().strip()
-            accessor = self.db.users.find_one({"email":email})
-            self.db.messages.update({"message":image_path},
-                                    {"$pull": {"accessors":accessor['token']}})
+            accessor = self.db.users.find_one({'email':email})
+            self.db.messages.update({'message':image_path},
+                                    {'$pull':{'accessors':accessor['token']}})
 
     def is_accessible(self, image_path, accessor_token):
         """Check to see if the user can access the image"""
-        accessor = self.db.users.find_one({"token":accessor_token})
+        accessor = self.db.users.find_one({'token':accessor_token})
         if accessor:
-            message = self.db.messages.find_one({"message":image_path})
+            message = self.db.messages.find_one({'message':image_path})
             if accessor['token'] in message['accessors']:
                 return True
         return False
@@ -122,7 +124,7 @@ class Lexicrypt():
         """Encrypt a block of text.
         Currently testing with AES and truncating to 250 characters.
         """
-        sender_token = self.db.users.find_one({"token":sender_token})
+        sender_token = self.db.users.find_one({'token':sender_token})
         if sender_token:
             cipher_text = AES.encrypt(self._pad_message(
                     unicode(message[:250]).encode('utf-8')))
@@ -138,11 +140,11 @@ class Lexicrypt():
         """
 
         try:
-            message = self.db.messages.find_one({"message":image_path})
+            message = self.db.messages.find_one({'message':image_path})
             if accessor_token in message['accessors']:
                 result_map = base64.b64decode(message['result_map'])
                 result_map = ast.literal_eval(result_map)
-                message = ''
+                message = []
                 if self.env == 'test':
                     image = Image.open(image_path).getdata()
                 else:
@@ -153,11 +155,10 @@ class Lexicrypt():
                     c = image.getpixel((0, y))
                     try:
                         c_idx = [v[1] for v in result_map].index(c)
-                        message += result_map[c_idx][0]
+                        message.append(result_map[c_idx][0])
                     except ValueError:
-                        print 'Image decryption failed: image data corrupt.'
-                        return ''
-                cipher_text = AES.decrypt(message).strip()
+                        raise
+                cipher_text = AES.decrypt(''.join(message)).strip()
                 return cipher_text
             else:
                 return ''
@@ -166,10 +167,11 @@ class Lexicrypt():
 
     def delete_message(self, image_path, sender_token):
         """Delete message."""
-        message_token = self.db.messages.find({"message":image_path,
-                                               "token":sender_token})
+        message_token = self.db.messages.find({'message':image_path,
+                                               'token':sender_token})
         if message_token:
-            self.db.messages.remove({"message":image_path, "token":sender_token})
+            self.db.messages.remove({'message':image_path,
+                                     'token':sender_token})
             return True
         return False
 
@@ -182,7 +184,7 @@ class Lexicrypt():
             if message_length % BLOCK_SIZE != 0:
                 current_count = message_length
                 while(current_count % BLOCK_SIZE != 0):
-                    message = "%s " % message
+                    message = '%s ' % message
                     current_count += 1
         return message
 
@@ -215,13 +217,13 @@ class Lexicrypt():
             image_full_path = "%s%s" % (settings.IMAGE_URL, filename)
 
         bchar_array = base64.b64encode(str(self.char_array))
-        self.db.messages.update({"message":image_full_path},
-                                {"$set": {"result_map":bchar_array,
-                                          "token":sender_token,
-                                          "created_at":int(time.time())}},
-                                          upsert=True)
-        self.db.messages.update({"message":image_full_path},
-                                {"$addToSet":{"accessors":sender_token}},
+        self.db.messages.update({'message':image_full_path},
+                                {'$set':{'result_map':bchar_array,
+                                         'token':sender_token,
+                                         'created_at':int(time.time())}},
+                                         upsert=True)
+        self.db.messages.update({'message':image_full_path},
+                                {'$addToSet':{'accessors':sender_token}},
                                  upsert=True)
         self.char_array = []
         return image_full_path
