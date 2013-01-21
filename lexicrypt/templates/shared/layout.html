@@ -26,13 +26,13 @@
         <a href="{{ url_for('logout') }}" id="logout">Logout</a>
       {% else %}
         <a href="#" id="login">Log in with Persona</a>
-      {% end %}
+      {% endif %}
 
       <ul id="header">
         {% if session['lex_email'] %}
           <li><a href="{{ url_for('your_messages') }}">Created Messages</a></li>
           <li><a href="{{ url_for('encrypt') }}">Encrypt New Message</a></li>
-        {% end %}
+        {% endif %}
         <li><a href="https://github.com/ednapiranha/lexicrypt">Code</a></li>
         <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
       </ul>
