@@ -26,14 +26,13 @@
         <a href="{{ url_for('logout') }}" id="logout">Logout</a>
 
         <ul id="header">
-          <li><a href="{{ url_for('your_messages') }}">Your Messages</a></li>
-          <li><a href="{{ url_for('encrypt') }}">Encrypt Message</a></li>
+          <li><a href="{{ url_for('your_messages') }}">Created Messages</a></li>
+          <li><a href="{{ url_for('encrypt') }}">Encrypt New Message</a></li>
+          <li><a href="https://github.com/ednapiranha/lexicrypt">Code</a></li>
+          <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
         </ul>
       {% else %}
-        <a href="#" id="login">Log in with BrowserID</a>
-        <form method="post" action="/set_email">
-          <input type="hidden" name="bid_assertion" value="1">
-        </form>
+        <a href="#" id="login">Log in with Persona</a>
       {% endif %}
 
       {% block content %}{% endblock %}
@@ -43,15 +42,5 @@
         </div>
       {% endblock %}
     </div>
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-4319539-35']);
-      _gaq.push(['_trackPageview']);
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
   </body>
 </html>

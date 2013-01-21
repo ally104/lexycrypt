@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,8 +12,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
     margin: 0;
@@ -24,7 +24,7 @@ time, mark, audio, video {
     vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
     display: block;
 }
@@ -51,14 +51,9 @@ table {
 
 @font-face {
     font-family: 'FranklinGothicDemiComp';
-    src: url('franklingothic-demicomp-webfont.eot');
-    src: url('franklingothic-demicomp-webfont.eot?#iefix') format('embedded-opentype'),
-         url('franklingothic-demicomp-webfont.woff') format('woff'),
-         url('franklingothic-demicomp-webfont.ttf') format('truetype'),
-         url('franklingothic-demicomp-webfont.svg#FranklinGothicDemiComp') format('svg');
+    src: url('franklingothic-demicomp-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
 
 body {
@@ -104,23 +99,25 @@ a#logout:hover, a#login:hover {
 }
 
 ul#header {
+    clear: both;
     display: block;
     float: left;
-    height: 34px;
-    line-height: 27px;
+    line-height: 20px;
 }
 
 ul#header li a {
-    color: #ccc;
+    color: #888;
     display: block;
-    font-size: 23px;
+    float: left;
+    font-family: Arial, sans-serif;
+    font-size: 17px;
     text-decoration: none;
-    text-transform: uppercase;
 }
 
 ul#header li {
+    display: block;
     float: left;
-    margin: 13px 15px 0px 0px;
+    margin: 13px 25px 0 0;
 }
 
 ul#header li a:hover, ul#header li a.selected {
@@ -132,10 +129,10 @@ div {
 }
 
 div.inner-wrapper {
-    border-top: 5px solid #eee;
+    border-top: 3px solid #eee;
     clear: both;
     float: left;
-    margin: 10px 0px 20px 0px;
+    margin: 5px 0px 10px 0px;
     padding-top: 20px;
     width: 100%;
 }
@@ -144,6 +141,19 @@ div.inner-wrapper.blank {
     border: 0px;
     margin: 0px;
     padding: 0px;
+}
+
+h2 {
+    font-size: 40px;
+    line-height: 35px;
+}
+
+.disclaimer p {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 15px;
+    max-width: 520px;
 }
 
 input[type="text"] {

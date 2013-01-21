@@ -37,6 +37,14 @@ def main():
     return render_template('index.html', messages=emessages)
 
 
+@app.route('/disclaimer', methods=['GET'])
+def disclaimer():
+    """Disclaimer page."""
+    messages = lex.get_messages()
+
+    return render_template('disclaimer.html')
+
+
 @app.route('/message/<id>', methods=['GET'])
 def message(id):
     """Single message display."""
