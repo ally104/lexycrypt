@@ -22,7 +22,7 @@ Install MongoDB or set up an account at http://mongohq.com
 
 ::
 
-    $ sudo pip install -r requirements.txt
+    $ pip install -r requirements.txt
     $ mkdir lexicrypt/tmp
     $ cp lexicrypt/setings.py-local lexicrypt/settings.py
 
