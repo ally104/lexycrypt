@@ -18,6 +18,8 @@ Token-based message distribution using encryption.
 Installation
 ============
 
+Install MongoDB or set up an account at http://mongohq.com
+
 ::
 
     $ sudo pip install -r requirements.txt
