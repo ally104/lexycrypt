@@ -160,17 +160,20 @@ class LexicryptTestCase(unittest.TestCase):
         lex.encrypt_message(message, 'lexicrypt/tests/images/',
                             'test.png', sender_token['token'])
         other_token = lex.get_or_create_email('test2@test.com')
-        
+
         lex.delete_message('lexicrypt/tests/images/test.png',
                            other_token['token'])
         message = lex.db.messages.find_one({'message':
                 'lexicrypt/tests/images/test.png'})
-        
+
         assert message
-    
+
         lex.delete_message('lexicrypt/tests/images/test.png',
                            sender_token['token'])
         message = lex.db.messages.find_one({'message':
                 'lexicrypt/tests/images/test.png'})
 
         assert not message
+
+if __name__ == '__main__':
+    unittest.main()

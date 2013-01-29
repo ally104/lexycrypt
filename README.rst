@@ -71,7 +71,7 @@ Running the Tests
 
 In the top level of the project, run the following::
 
-    $ python -m unittest lexicrypt.tests.test
+    $ python -m lexicrypt.tests.test
 
 
 Additional Notes
